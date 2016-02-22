@@ -1,0 +1,16 @@
+{
+  "name": "sdp",
+  "version": "1.0.0",
+  "description": "SDP parsing and serialization utilities",
+  "main": "sdp.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fippo/sdp.git"
+  },
+  "keywords": [
+    "sdp",
+    "webrtc"
+  ],
+  "author": "Philipp Hancke",
+  "license": "MIT"
+}
