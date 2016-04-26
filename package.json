@@ -7,10 +7,17 @@
     "type": "git",
     "url": "git+https://github.com/fippo/sdp.git"
   },
+  "scripts": {
+    "test": "eslint sdp.js test/sdp.js && node test/sdp.js"
+  },
   "keywords": [
     "sdp",
     "webrtc"
   ],
   "author": "Philipp Hancke",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "eslint": "^2.8.0",
+    "tape": "^4.0.0"
+  }
 }
