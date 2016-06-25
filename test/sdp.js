@@ -174,3 +174,17 @@ test('parseRtpEncodingParameters with b=TIAS', function(t) {
   t.ok(data[1].maxBitrate === 512, 'parsed b=AS:512');
   t.end();
 });
+
+test('writeRtcpFb', function(t) {
+  var codec = { payloadType: 100,
+    rtcpFeedback: [
+      { type: 'nack', parameter: 'pli' },
+      { type: 'nack' }
+    ]
+  };
+  var expected = 'a=rtcp-fb:100 nack pli\r\n' +
+    'a=rtcp-fb:100 nack\r\n';
+  console.log(SDPUtils.writeRtcpFb(codec));
+  t.ok(SDPUtils.writeRtcpFb(codec) === expected, 'wrote rtcp-fb');
+  t.end();
+});
