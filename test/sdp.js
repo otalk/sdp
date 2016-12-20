@@ -171,7 +171,7 @@ test('parseRtpEncodingParameters with b=TIAS', function(t) {
   );
   var data = SDPUtils.parseRtpEncodingParameters(sections[1]);
 
-  t.ok(data[1].maxBitrate === 512, 'parsed b=AS:512');
+  t.ok(data[1].maxBitrate === 512, 'parsed b=TIAS:512');
   t.end();
 });
 
