@@ -475,6 +475,8 @@ SDPUtils.writeMediaSection = function(transceiver, caps, type, stream) {
     if (transceiver.sendEncodingParameters[0].rtx) {
       sdp += 'a=ssrc:' + transceiver.sendEncodingParameters[0].rtx.ssrc +
           ' ' + msid;
+      sdp += 'a=ssrc:' + transceiver.sendEncodingParameters[0].rtx.ssrc +
+          ' cname:' + SDPUtils.localCName + '\r\n';
       sdp += 'a=ssrc-group:FID ' +
           transceiver.sendEncodingParameters[0].ssrc + ' ' +
           transceiver.sendEncodingParameters[0].rtx.ssrc +
