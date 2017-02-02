@@ -475,8 +475,6 @@ SDPUtils.writeMediaSection = function(transceiver, caps, type, stream) {
     if (transceiver.sendEncodingParameters[0].rtx) {
       sdp += 'a=ssrc:' + transceiver.sendEncodingParameters[0].rtx.ssrc +
           ' ' + msid;
-      sdp += 'a=ssrc:' + transceiver.sendEncodingParameters[0].rtx.ssrc +
-          ' cname:' + SDPUtils.localCName + '\r\n';
       sdp += 'a=ssrc-group:FID ' +
           transceiver.sendEncodingParameters[0].ssrc + ' ' +
           transceiver.sendEncodingParameters[0].rtx.ssrc +
@@ -486,6 +484,10 @@ SDPUtils.writeMediaSection = function(transceiver, caps, type, stream) {
   // FIXME: this should be written by writeRtpDescription.
   sdp += 'a=ssrc:' + transceiver.sendEncodingParameters[0].ssrc +
       ' cname:' + SDPUtils.localCName + '\r\n';
+  if (transceiver.rtpSender && transceiver.sendEncodingParameters[0].rtx) {
+    sdp += 'a=ssrc:' + transceiver.sendEncodingParameters[0].rtx.ssrc +
+        ' cname:' + SDPUtils.localCName + '\r\n';
+  }
   return sdp;
 };
 
