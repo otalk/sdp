@@ -183,7 +183,18 @@ test('writeRtcpFb', function(t) {
   };
   var expected = 'a=rtcp-fb:100 nack pli\r\n' +
     'a=rtcp-fb:100 nack\r\n';
-  console.log(SDPUtils.writeRtcpFb(codec));
   t.ok(SDPUtils.writeRtcpFb(codec) === expected, 'wrote rtcp-fb');
+  t.end();
+});
+
+test('parseMsid', function(t) {
+  var spec = 'a=msid:sid tid\r\n';
+  var planB = 'a=ssrc:1 cname:V\r\n' +
+      'a=ssrc:1 msid:sid tid\r\n';
+  t.ok(SDPUtils.parseMsid(spec).stream === 'sid', 'parsed spec stream id');
+  t.ok(SDPUtils.parseMsid(spec).track === 'tid', 'parsed track stream id');
+
+  t.ok(SDPUtils.parseMsid(planB).stream === 'sid', 'parsed plan B stream id');
+  t.ok(SDPUtils.parseMsid(planB).track === 'tid', 'parsed plan B track id');
   t.end();
 });
