@@ -535,5 +535,11 @@ SDPUtils.getDirection = function(mediaSection, sessionpart) {
   return 'sendrecv';
 };
 
+SDPUtils.getKind = function(mediaSection) {
+  var lines = SDPUtils.splitLines(mediaSection);
+  var mline = lines[0].split(' ');
+  return mline[0].substr(2);
+};
+
 // Expose public methods.
 module.exports = SDPUtils;

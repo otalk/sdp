@@ -187,14 +187,10 @@ test('writeRtcpFb', function(t) {
   t.end();
 });
 
-test('parseMsid', function(t) {
-  var spec = 'a=msid:sid tid\r\n';
-  var planB = 'a=ssrc:1 cname:V\r\n' +
-      'a=ssrc:1 msid:sid tid\r\n';
-  t.ok(SDPUtils.parseMsid(spec).stream === 'sid', 'parsed spec stream id');
-  t.ok(SDPUtils.parseMsid(spec).track === 'tid', 'parsed track stream id');
-
-  t.ok(SDPUtils.parseMsid(planB).stream === 'sid', 'parsed plan B stream id');
-  t.ok(SDPUtils.parseMsid(planB).track === 'tid', 'parsed plan B track id');
+test('getKind', function(t) {
+  var mediaSection = 'm=video 9 UDP/TLS/RTP/SAVPF 120 126 97\r\n' +
+      'c=IN IP4 0.0.0.0\r\na=sendrecv\r\n';
+  t.ok(SDPUtils.getKind(mediaSection) === 'video',
+      'extracted mediaSection kind');
   t.end();
 });
