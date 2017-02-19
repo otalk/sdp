@@ -541,5 +541,9 @@ SDPUtils.getKind = function(mediaSection) {
   return mline[0].substr(2);
 };
 
+SDPUtils.isRejected = function(mediaSection) {
+  return mediaSection.split(' ', 2)[1] === '0';
+};
+
 // Expose public methods.
 module.exports = SDPUtils;

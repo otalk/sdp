@@ -194,3 +194,11 @@ test('getKind', function(t) {
       'extracted mediaSection kind');
   t.end();
 });
+
+test('isRejected', function(t) {
+  var ok = 'm=video 9 UDP/TLS/RTP/SAVPF 120 126 97\r\n';
+  var rej = 'm=video 0 UDP/TLS/RTP/SAVPF 120 126 97\r\n';
+  t.ok(SDPUtils.isRejected(ok) === false, 'port 9 is not rejected');
+  t.ok(SDPUtils.isRejected(rej) === true, 'port 0 is rejected');
+  t.end();
+});
