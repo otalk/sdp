@@ -202,3 +202,13 @@ test('isRejected', function(t) {
   t.ok(SDPUtils.isRejected(rej) === true, 'port 0 is rejected');
   t.end();
 });
+
+test('parseRtcpParameters', function(t) {
+  var rtcp = SDPUtils.parseRtcpParameters(videoSDP);
+  t.ok(rtcp.cname === 'VrveQctHgkwqDKj6', 'parsed RTCP cname');
+  t.ok(rtcp.ssrc === 1734522595, 'parsed RTCP ssrc');
+  t.ok(rtcp.reducedSize === true, 'parsed RTCP reducedSize');
+  t.ok(rtcp.compound === false, 'parsed RTCP compound');
+  t.ok(rtcp.mux === true, 'parse RTCP mux');
+  t.end();
+});
