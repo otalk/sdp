@@ -233,10 +233,11 @@ SDPUtils.getDtlsParameters = function(mediaSection, sessionpart) {
     return line.indexOf('a=fingerprint:') === 0;
   })[0].substr(14);
   // Note: a=setup line is ignored since we use the 'auto' role.
+  // Note2: 'algorithm' is not case sensitive except in Edge.
   var dtlsParameters = {
     role: 'auto',
     fingerprints: [{
-      algorithm: fpLine.split(' ')[0],
+      algorithm: fpLine.split(' ')[0].toLowerCase(),
       value: fpLine.split(' ')[1]
     }]
   };
