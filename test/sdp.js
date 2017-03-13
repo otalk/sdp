@@ -212,3 +212,17 @@ test('parseRtcpParameters', function(t) {
   t.ok(rtcp.mux === true, 'parse RTCP mux');
   t.end();
 });
+
+test('getDtlsParameters', function(t) {
+  var fp = 'a=fingerprint:sha-256 so:me:th:in:g1\r\n';
+  var dtlsParameters = SDPUtils.getDtlsParameters(fp, '');
+  t.ok(dtlsParameters.role === 'auto', 'set role to "auto"');
+  t.ok(dtlsParameters.fingerprints.length === 1, 'parsed one fingerprint');
+  t.ok(dtlsParameters.fingerprints[0].algorithm === 'sha-256', 'extracted algorithm');
+  t.ok(dtlsParameters.fingerprints[0].value === 'so:me:th:in:g1', 'extracted value');
+
+  // test that values are lowercased
+  t.ok(SDPUtils.getDtlsParameters(fp.replace('sha-256', 'SHA-256'), '').fingerprints[0].algorithm === 'sha-256',
+      'algorithm value is extracted as lower-case');
+  t.end();
+});
