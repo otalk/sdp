@@ -226,3 +226,11 @@ test('getDtlsParameters', function(t) {
       'algorithm value is extracted as lower-case');
   t.end();
 });
+
+test('getMid', function(t) {
+  var mediaSection = 'm=video 9 UDP/TLS/RTP/SAVPF 120 126 97\r\n' +
+      'c=IN IP4 0.0.0.0\r\na=sendrecv\r\n';
+  t.ok(SDPUtils.getMid(mediaSection + 'a=mid:foo\r\n') === 'foo', 'returns the mid');
+  t.ok(SDPUtils.getMid(mediaSection) === undefined, 'returns undefined when no a=mid is present');
+  t.end();
+});
