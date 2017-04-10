@@ -234,3 +234,12 @@ test('getMid', function(t) {
   t.ok(SDPUtils.getMid(mediaSection) === undefined, 'returns undefined when no a=mid is present');
   t.end();
 });
+
+test('parseIceOptions', function(t) {
+  var result = SDPUtils.parseIceOptions('a=ice-options:trickle something');
+  t.ok(Array.isArray(result), 'returns an array of options');
+  t.ok(result.length === 2, 'returns two items for the given data');
+  t.ok(result[0] === 'trickle', 'first option equals "trickle"');
+  t.ok(result[1] === 'something', 'first option equals "something"');
+  t.end()
+});
