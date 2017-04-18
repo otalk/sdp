@@ -138,10 +138,12 @@ SDPUtils.writeRtpMap = function(codec) {
 
 // Parses an a=extmap line (headerextension from RFC 5285). Sample input:
 // a=extmap:2 urn:ietf:params:rtp-hdrext:toffset
+// a=extmap:2/sendonly urn:ietf:params:rtp-hdrext:toffset
 SDPUtils.parseExtmap = function(line) {
   var parts = line.substr(9).split(' ');
   return {
     id: parseInt(parts[0], 10),
+    direction: parts[0].indexOf('/') > 0 ? parts[0].split('/')[1] : 'sendrecv',
     uri: parts[1]
   };
 };
@@ -150,7 +152,10 @@ SDPUtils.parseExtmap = function(line) {
 // RTCRtpHeaderExtension.
 SDPUtils.writeExtmap = function(headerExtension) {
   return 'a=extmap:' + (headerExtension.id || headerExtension.preferredId) +
-       ' ' + headerExtension.uri + '\r\n';
+      (headerExtension.direction && headerExtension.direction !== 'sendrecv'
+          ? '/' + headerExtension.direction
+          : '') +
+      ' ' + headerExtension.uri + '\r\n';
 };
 
 // Parses an ftmp line, returns dictionary. Sample input:
