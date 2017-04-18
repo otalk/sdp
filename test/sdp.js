@@ -243,3 +243,26 @@ test('parseIceOptions', function(t) {
   t.ok(result[1] === 'something', 'first option equals "something"');
   t.end()
 });
+
+test('parseExtmap', function(t) {
+  var res = SDPUtils.parseExtmap('a=extmap:2 uri');
+  t.ok(res.id === 2, 'parses extmap id');
+  t.ok(res.uri === 'uri', 'parses extmap uri');
+  t.ok(res.direction === 'sendrecv', 'direction defaults to sendrecv');
+
+  res = SDPUtils.parseExtmap('a=extmap:2/sendonly uri');
+  t.ok(res.id === 2, 'parses extmap id when direction is present');
+  t.ok(res.direction === 'sendonly', 'parses extmap direction');
+
+  t.end();
+});
+
+test('writeExtmap', function(t) {
+  t.ok(SDPUtils.writeExtmap({id: 1, uri: 'uri'}) === 'a=extmap:1 uri\r\n',
+      'writes extmap without direction');
+  t.ok(SDPUtils.writeExtmap({id: 1, uri: 'uri', direction: 'sendrecv'}) === 'a=extmap:1 uri\r\n',
+      'writes extmap without direction when direction is sendrecv (default)');
+  t.ok(SDPUtils.writeExtmap({id: 1, uri: 'uri', direction: 'sendonly'}) === 'a=extmap:1/sendonly uri\r\n',
+      'writes extmap with direction when direction is not sendrecv');
+  t.end();
+});
