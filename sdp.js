@@ -106,7 +106,16 @@ SDPUtils.writeCandidate = function(candidate) {
 // a=ice-options:foo bar
 SDPUtils.parseIceOptions = function(line) {
   return line.substr(14).split(' ');
-}
+};
+
+SDPUtils.canTrickleIceCandidates = function(sessionOrMediaSection) {
+  var iceOptions = SDPUtils.matchPrefix(sessionOrMediaSection,
+      'a=ice-options:')[0];
+  if (iceOptions) {
+    return SDPUtils.parseIceOptions(iceOptions).indexOf('trickle') >= 0;
+  }
+  return false;
+};
 
 // Parses an rtpmap line, returns RTCRtpCoddecParameters. Sample input:
 // a=rtpmap:111 opus/48000/2

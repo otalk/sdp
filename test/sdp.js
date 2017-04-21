@@ -244,6 +244,13 @@ test('parseIceOptions', function(t) {
   t.end()
 });
 
+test('canTrickleIceCandidates', function(t) {
+  t.ok(SDPUtils.canTrickleIceCandidates('a=ice-options:trickle\r\n'), 'canTrickleIceCandidates recognizes trickle option');
+  t.false(SDPUtils.canTrickleIceCandidates('a=ice-options:foo\r\n'), 'canTrickleIceCandidates ignores non-trickle options');
+  t.false(SDPUtils.canTrickleIceCandidates('a=no-ice-options\r\n'), 'canTrickleIceCandidates is false when no ice-options are present');
+  t.end();
+});
+
 test('parseExtmap', function(t) {
   var res = SDPUtils.parseExtmap('a=extmap:2 uri');
   t.ok(res.id === 2, 'parses extmap id');
