@@ -213,17 +213,23 @@ test('parseRtcpParameters', function(t) {
   t.end();
 });
 
+
+test('parseFingerprint', function(t) {
+  var res = SDPUtils.parseFingerprint('a=fingerprint:ALG fp');
+  t.ok(res.algorithm === 'alg', 'algorithm is parsed and lowercased');
+  t.ok(res.value === 'fp', 'value is parsed');
+  t.end();
+});
+
 test('getDtlsParameters', function(t) {
-  var fp = 'a=fingerprint:sha-256 so:me:th:in:g1\r\n';
+  var fp = 'a=fingerprint:sha-256 so:me:th:in:g1\r\na=fingerprint:SHA-1 somethingelse';
   var dtlsParameters = SDPUtils.getDtlsParameters(fp, '');
   t.ok(dtlsParameters.role === 'auto', 'set role to "auto"');
-  t.ok(dtlsParameters.fingerprints.length === 1, 'parsed one fingerprint');
+  t.ok(dtlsParameters.fingerprints.length === 2, 'parsed two fingerprints');
   t.ok(dtlsParameters.fingerprints[0].algorithm === 'sha-256', 'extracted algorithm');
   t.ok(dtlsParameters.fingerprints[0].value === 'so:me:th:in:g1', 'extracted value');
-
-  // test that values are lowercased
-  t.ok(SDPUtils.getDtlsParameters(fp.replace('sha-256', 'SHA-256'), '').fingerprints[0].algorithm === 'sha-256',
-      'algorithm value is extracted as lower-case');
+  t.ok(dtlsParameters.fingerprints[1].algorithm === 'sha-1', 'extracted second algorithm (lowercased)');
+  t.ok(dtlsParameters.fingerprints[1].value === 'somethingelse', 'extracted second value');
   t.end();
 });
 
