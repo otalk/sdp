@@ -272,3 +272,23 @@ test('writeExtmap', function(t) {
       'writes extmap with direction when direction is not sendrecv');
   t.end();
 });
+
+test('parseCandidate', function(t) {
+  var candidateString = 'candidate:702786350 2 udp 41819902 8.8.8.8 60769 ' +
+      'typ relay raddr 8.8.8.8 rport 1234 ' +
+      'tcptype active ' +
+      'ufrag abc';
+  var candidate = SDPUtils.parseCandidate(candidateString);
+
+  t.ok(candidate.foundation === '702786350', 'parsed foundation');
+  t.ok(candidate.component ===  '2', 'parsed component');
+  t.ok(candidate.priority === 41819902, 'parsed priority');
+  t.ok(candidate.ip === '8.8.8.8', 'parsed ip');
+  t.ok(candidate.protocol === 'udp', 'parsed protocol');
+  t.ok(candidate.port === 60769, 'parsed port');
+  t.ok(candidate.tcpType === 'active', 'parsed tcpType');
+  t.ok(candidate.relatedAddress === '8.8.8.8', 'parsed relatedAddress');
+  t.ok(candidate.relatedPort === 1234, 'parsed relatedPort');
+  t.ok(candidate.ufrag === 'abc', 'parsed ufrag');
+  t.end();
+});
