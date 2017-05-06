@@ -281,7 +281,7 @@ test('parseCandidate', function(t) {
   var candidate = SDPUtils.parseCandidate(candidateString);
 
   t.ok(candidate.foundation === '702786350', 'parsed foundation');
-  t.ok(candidate.component ===  '2', 'parsed component');
+  t.ok(candidate.component ===  2, 'parsed component');
   t.ok(candidate.priority === 41819902, 'parsed priority');
   t.ok(candidate.ip === '8.8.8.8', 'parsed ip');
   t.ok(candidate.protocol === 'udp', 'parsed protocol');
