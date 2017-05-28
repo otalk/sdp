@@ -8,7 +8,7 @@
     "url": "git+https://github.com/fippo/sdp.git"
   },
   "scripts": {
-    "test": "eslint sdp.js test/sdp.js && node test/sdp.js"
+    "test": "eslint sdp.js test/sdp.js && mocha test/sdp.js"
   },
   "keywords": [
     "sdp",
@@ -17,7 +17,10 @@
   "author": "Philipp Hancke",
   "license": "MIT",
   "devDependencies": {
+    "chai": "^4.0.0",
     "eslint": "^2.8.0",
-    "tape": "^4.0.0"
+    "mocha": "^3.4.2",
+    "sinon": "^2.3.2",
+    "sinon-chai": "^2.10.0"
   }
 }
