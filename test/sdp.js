@@ -140,6 +140,22 @@ describe('fmtp', () => {
   });
 
   describe('serialization', () => {
+    it('uses preferredPayloadType', () => {
+      let out = SDPUtils.writeFmtp({
+        preferredPayloadType: 111,
+        parameters: {minptime: '10'}
+      }).trim();
+      expect(out).to.equal('a=fmtp:111 minptime=10');
+    });
+
+    it('returns an empty string if there are no parameters', () => {
+      let out = SDPUtils.writeFmtp({
+        preferredPayloadType: 111,
+        parameters: {}
+      }).trim();
+      expect(out).to.equal('');
+    });
+
     // TODO: is this safe or can the order change?
     // serialization strings the extra whitespace after ';'
     it('does not add extra spaces between parameters', () => {
@@ -182,6 +198,16 @@ describe('rtpmap', () => {
     it('generates the expected output', () => {
       let out = SDPUtils.writeRtpMap({
         payloadType: 111,
+        name: 'opus',
+        clockRate: 48000,
+        numChannels: 2
+      }).trim();
+      expect(out).to.equal(line);
+    });
+
+    it('uses preferredPayloadType', () => {
+      let out = SDPUtils.writeRtpMap({
+        preferredPayloadType: 111,
         name: 'opus',
         clockRate: 48000,
         numChannels: 2
@@ -258,6 +284,23 @@ describe('rtcp feedback', () => {
       const expected = 'a=rtcp-fb:100 nack pli\r\n' +
         'a=rtcp-fb:100 nack\r\n';
       expect(SDPUtils.writeRtcpFb(codec)).to.equal(expected);
+    });
+
+    it('serialized preferredPayloadType', () => {
+      const codec = { preferredPayloadType: 100,
+        rtcpFeedback: [
+          { type: 'nack' }
+        ]
+      };
+      const expected = 'a=rtcp-fb:100 nack\r\n';
+      expect(SDPUtils.writeRtcpFb(codec)).to.equal(expected);
+    });
+    
+    it('does nothing if there is no rtcp feedback', () => {
+      const codec = { payloadType: 100,
+        rtcpFeedback: []
+      };
+      expect(SDPUtils.writeRtcpFb(codec)).to.equal('');
     });
   })
 });
