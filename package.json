@@ -8,7 +8,7 @@
     "url": "git+https://github.com/fippo/sdp.git"
   },
   "scripts": {
-    "test": "eslint sdp.js test/sdp.js && mocha test/sdp.js"
+    "test": "eslint sdp.js test/sdp.js && nyc --reporter html mocha test/sdp.js"
   },
   "keywords": [
     "sdp",
@@ -20,6 +20,7 @@
     "chai": "^4.0.0",
     "eslint": "^2.8.0",
     "mocha": "^3.4.2",
+    "nyc": "^10.3.2",
     "sinon": "^2.3.2",
     "sinon-chai": "^2.10.0"
   }
