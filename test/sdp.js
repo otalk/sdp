@@ -268,6 +268,18 @@ it('getKind', () => {
   expect(SDPUtils.getKind(mediaSection)).to.equal('video');
 });
 
+describe('getDirection', () => {
+  const mediaSection = 'm=video 9 UDP/TLS/RTP/SAVPF 120 126 97\r\n' +
+      'c=IN IP4 0.0.0.0\r\na=sendonly\r\n';
+  it('parses the direction from the mediaSection', () => {
+    expect(SDPUtils.getDirection(mediaSection)).to.equal('sendonly');
+  });
+
+  it('falls back to sendrecv', () => {
+    expect(SDPUtils.getDirection('')).to.equal('sendrecv');
+  });
+});
+
 describe('isRejected', () => {
   it('returns true if the m-lines port is 0', () => {
     const rej = 'm=video 0 UDP/TLS/RTP/SAVPF 120 126 97\r\n';
@@ -335,6 +347,53 @@ describe('getDtlsParameters', () => {
   it('extracts the fingerprints', () => {
     expect(dtlsParameters.fingerprints[0].value).to.equal('so:me:th:in:g1');
     expect(dtlsParameters.fingerprints[1].value).to.equal('somethingelse');
+  });
+});
+
+describe('writeDtlsParameters', () => {
+  const type = 'actpass';
+  const parameters = {fingerprints: [
+     {algorithm: 'sha-256', value: 'so:me:th:in:g1'},
+     {algorithm: 'SHA-1', value: 'somethingelse'}
+  ]};
+
+  const serialized = SDPUtils.writeDtlsParameters(parameters, type);
+  it('serializes the fingerprints', () => {
+     expect(serialized).to.contain('a=fingerprint:sha-256 so:me:th:in:g1');
+     expect(serialized).to.contain('a=fingerprint:SHA-1 somethingelse');
+  });
+  it('serializes the type', () => {
+    expect(serialized).to.contain('a=setup:' + type);
+  });
+});
+
+describe('getIceParameters', () => {
+  const sections = SDPUtils.splitSections(videoSDP);
+  const ice = SDPUtils.getIceParameters(sections[1], sections[0]);
+  it('returns an object', () => {
+    expect(ice).to.be.an('Object');
+  });
+
+  it('parses the ufrag', () => {
+    expect(ice.usernameFragment).to.equal('npaLWmWDg3Yp6vJt');
+  });
+  it('parses the password', () => {
+    expect(ice.password).to.equal('pdfQZAiFbcsFmUKWw55g4TD5');
+  });
+});
+
+describe('writeIceParameters', () => {
+  const serialized= SDPUtils.writeIceParameters({
+      usernameFragment: 'foo',
+      password: 'bar'
+  });
+
+  it('serializes the usernameFragment', () => {
+     expect(serialized).to.contain('a=ice-ufrag:foo');
+  });
+
+  it('serializes the password', () => {
+     expect(serialized).to.contain('a=ice-pwd:bar');
   });
 });
 
