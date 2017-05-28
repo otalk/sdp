@@ -355,6 +355,36 @@ describe('writeDtlsParameters', () => {
   });
 });
 
+describe('getIceParameters', () => {
+  const sections = SDPUtils.splitSections(videoSDP);
+  const ice = SDPUtils.getIceParameters(sections[1], sections[0]);
+  it('returns an object', () => {
+    expect(ice).to.be.an('Object');
+  });
+
+  it('parses the ufrag', () => {
+    expect(ice.usernameFragment).to.equal('npaLWmWDg3Yp6vJt');
+  });
+  it('parses the password', () => {
+    expect(ice.password).to.equal('pdfQZAiFbcsFmUKWw55g4TD5');
+  });
+});
+
+describe('writeIceParameters', () => {
+  const serialized= SDPUtils.writeIceParameters({
+      usernameFragment: 'foo',
+      password: 'bar'
+  });
+
+  it('serializes the usernameFragment', () => {
+     expect(serialized).to.contain('a=ice-ufrag:foo');
+  });
+
+  it('serializes the password', () => {
+     expect(serialized).to.contain('a=ice-pwd:bar');
+  });
+});
+
 describe('getMid', () => {
   const mediaSection = 'm=video 9 UDP/TLS/RTP/SAVPF 120 126 97\r\n' +
       'c=IN IP4 0.0.0.0\r\na=sendrecv\r\n';
