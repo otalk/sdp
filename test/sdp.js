@@ -251,24 +251,35 @@ describe('parseRtpEncodingParameters', () => {
     expect(data[0].ssrc).to.equal(98927270);
   });
 
-  it('parses b=AS', () => {
-    sections = SDPUtils.splitSections(
-        videoSDP.replace('c=IN IP4 0.0.0.0\r\n',
-                         'c=IN IP4 0.0.0.0\r\nb=AS:512\r\n')
-    );
-    data = SDPUtils.parseRtpEncodingParameters(sections[1]);
+  describe('bandwidth modifier', () => {
+    it('of type AS is parsed', () => {
+      sections = SDPUtils.splitSections(
+          videoSDP.replace('c=IN IP4 0.0.0.0\r\n',
+                           'c=IN IP4 0.0.0.0\r\nb=AS:512\r\n')
+      );
+      data = SDPUtils.parseRtpEncodingParameters(sections[1]);
 
-    expect(data[0].maxBitrate).to.equal(512);
-  });
+      // conversion formula from jsep.
+      expect(data[0].maxBitrate).to.equal(512 * 1000 * 0.95 - (50 * 40 * 8))
+    });
 
-  it('parses b=TIAS', () => {
-    sections = SDPUtils.splitSections(
-        videoSDP.replace('c=IN IP4 0.0.0.0\r\n',
-                         'c=IN IP4 0.0.0.0\r\nb=TIAS:512000\r\n')
-    );
-    data = SDPUtils.parseRtpEncodingParameters(sections[1]);
+    it('of type TIAS is parsed', () => {
+      sections = SDPUtils.splitSections(
+          videoSDP.replace('c=IN IP4 0.0.0.0\r\n',
+                           'c=IN IP4 0.0.0.0\r\nb=TIAS:512000\r\n')
+      );
+      data = SDPUtils.parseRtpEncodingParameters(sections[1]);
+      expect(data[0].maxBitrate).to.equal(512000);
+    });
 
-    expect(data[0].maxBitrate).to.equal(512000);
+    it('of unknown type is ignored', () => {
+      sections = SDPUtils.splitSections(
+          videoSDP.replace('c=IN IP4 0.0.0.0\r\n',
+                           'c=IN IP4 0.0.0.0\r\nb=something:1\r\n')
+      );
+      data = SDPUtils.parseRtpEncodingParameters(sections[1]);
+      expect(data[0].maxBitrate).to.equal(undefined);
+    });
   });
 });
 
