@@ -268,6 +268,18 @@ it('getKind', () => {
   expect(SDPUtils.getKind(mediaSection)).to.equal('video');
 });
 
+describe('getDirection', () => {
+  const mediaSection = 'm=video 9 UDP/TLS/RTP/SAVPF 120 126 97\r\n' +
+      'c=IN IP4 0.0.0.0\r\na=sendonly\r\n';
+  it('parses the direction from the mediaSection', () => {
+    expect(SDPUtils.getDirection(mediaSection)).to.equal('sendonly');
+  });
+
+  it('falls back to sendrecv', () => {
+    expect(SDPUtils.getDirection('')).to.equal('sendrecv');
+  });
+});
+
 describe('isRejected', () => {
   it('returns true if the m-lines port is 0', () => {
     const rej = 'm=video 0 UDP/TLS/RTP/SAVPF 120 126 97\r\n';
