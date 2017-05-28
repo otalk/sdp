@@ -292,6 +292,36 @@ describe('isRejected', () => {
   });
 });
 
+describe('parseMsid', () => {
+  const spec = 'a=msid:stream track\r\n';
+  const planB = 'a=ssrc:1 msid:stream track\r\n';
+
+  const parsed = SDPUtils.parseMsid(spec);
+
+  it('returns undefined if no msid is found', () => {
+    expect(SDPUtils.parseMsid('')).to.equal(undefined);
+  });
+
+  it('returns an object if a msid is found', () => {
+    expect(parsed).to.be.an('Object');
+  });
+
+  it('parses the stream id', () => {
+    expect(parsed.stream).to.equal('stream');
+  });
+
+  it('parses the track id', () => {
+    expect(parsed.track).to.equal('track');
+  });
+
+  it('parses legacy plan B stuff', () => {
+    let legacy = SDPUtils.parseMsid(planB);
+    expect(legacy).to.be.an('Object');
+    expect(legacy.stream).to.equal('stream');
+    expect(legacy.track).to.equal('track');
+  });
+});
+
 describe('parseRtcpParameters', () => {
   const rtcp = SDPUtils.parseRtcpParameters(videoSDP);
 
