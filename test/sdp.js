@@ -338,6 +338,23 @@ describe('getDtlsParameters', () => {
   });
 });
 
+describe('writeDtlsParameters', () => {
+  const type = 'actpass';
+  const parameters = {fingerprints: [
+     {algorithm: 'sha-256', value: 'so:me:th:in:g1'},
+     {algorithm: 'SHA-1', value: 'somethingelse'}
+  ]};
+
+  const serialized = SDPUtils.writeDtlsParameters(parameters, type);
+  it('serializes the fingerprints', () => {
+     expect(serialized).to.contain('a=fingerprint:sha-256 so:me:th:in:g1');
+     expect(serialized).to.contain('a=fingerprint:SHA-1 somethingelse');
+  });
+  it('serializes the type', () => {
+    expect(serialized).to.contain('a=setup:' + type);
+  });
+});
+
 describe('getMid', () => {
   const mediaSection = 'm=video 9 UDP/TLS/RTP/SAVPF 120 126 97\r\n' +
       'c=IN IP4 0.0.0.0\r\na=sendrecv\r\n';
