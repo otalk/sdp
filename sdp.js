@@ -100,6 +100,10 @@ SDPUtils.writeCandidate = function(candidate) {
     sdp.push('tcptype');
     sdp.push(candidate.tcpType);
   }
+  if (candidate.ufrag) {
+    sdp.push('ufrag');
+    sdp.push(candidate.ufrag);
+  }
   return 'candidate:' + sdp.join(' ');
 };
 

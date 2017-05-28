@@ -402,48 +402,110 @@ describe('extmap', () => {
   });
 });
 
-describe('parseCandidate', () => {
-  const candidateString = 'candidate:702786350 2 udp 41819902 8.8.8.8 60769 ' +
-      'typ relay raddr 8.8.8.8 rport 1234 ' +
-      'tcptype active ' +
-      'ufrag abc';
-  const candidate = SDPUtils.parseCandidate(candidateString);
+describe('ice candidate', () => {
+  describe('parsing', () => {
+    const candidateString = 'candidate:702786350 2 udp 41819902 8.8.8.8 60769 ' +
+        'typ relay raddr 8.8.8.8 rport 1234 ' +
+        'tcptype active ' +
+        'ufrag abc';
+    const candidate = SDPUtils.parseCandidate(candidateString);
 
-  it('parses foundation', () => {
-    expect(candidate.foundation).to.equal('702786350');
-  });
-  it('parses component', () => {
-    expect(candidate.component).to.equal(2);
-  });
-  it('parses priority', () => {
-    expect(candidate.priority).to.equal(41819902, 'parses priority');
+    it('parses foundation', () => {
+      expect(candidate.foundation).to.equal('702786350');
+    });
+    it('parses component', () => {
+      expect(candidate.component).to.equal(2);
+    });
+    it('parses priority', () => {
+      expect(candidate.priority).to.equal(41819902, 'parses priority');
+    });
+
+    it('parses ip', () => {
+      expect(candidate.ip).to.equal('8.8.8.8');
+    });
+
+    it('parses protocol', () => {
+      expect(candidate.protocol).to.equal('udp');
+    });
+
+    it('parses port', () => {
+      expect(candidate.port).to.equal(60769);
+    });
+
+    it('parses type', () => {
+      expect(candidate.type).to.equal('relay');
+    });
+
+    it('parses tcpType', () => {
+      expect(candidate.tcpType).to.equal('active');
+    });
+
+    it('parses relatedAddress', () => {
+      expect(candidate.relatedAddress).to.equal('8.8.8.8');
+    });
+
+    it('parses relatedPort', () => {
+      expect(candidate.relatedPort).to.equal(1234);
+    });
+
+    it('parses ufrag', () => {
+      expect(candidate.ufrag).to.equal('abc');
+    });
+
+    it('parses the candidate with the legacy a= prefix', () => {
+      expect(SDPUtils.parseCandidate('a=' + candidateString).foundation)
+          .to.equal('702786350');
+    });
   });
 
-  it('parses ip', () => {
-    expect(candidate.ip).to.equal('8.8.8.8');
-  });
+  describe('serialization', () => {
+    let serialized;
+    let candidate;
+    beforeEach(() => {
+      candidate = {
+        foundation: '702786350',
+        component: 2,
+        protocol: 'udp',
+        priority: 4189902,
+        ip: '8.8.8.8',
+        port: 60769,
+        type: 'host',
+      };
+    });
 
-  it('parses protocol', () => {
-    expect(candidate.protocol).to.equal('udp');
-  });
+    it('serializes a candidate with everything', () => {
+      candidate.protocol = 'tcp';
+      candidate.tcpType = 'active';
+      candidate.type = 'relay';
+      candidate.relatedAddress = '8.8.8.8';
+      candidate.relatedPort = 1234;
 
-  it('parses port', () => {
-    expect(candidate.port).to.equal(60769);
-  });
+      serialized = SDPUtils.writeCandidate(candidate).trim();
+      expect(serialized).to.equal('candidate:702786350 2 TCP 4189902 8.8.8.8 ' +
+          '60769 typ relay raddr 8.8.8.8 rport 1234 tcptype active');
+    });
 
-  it('parses tcpType', () => {
-    expect(candidate.tcpType).to.equal('active');
-  });
+    it('adds ufrag if present', () => {
+      candidate.ufrag = 'abc';
+      serialized = SDPUtils.writeCandidate(candidate).trim();
+      expect(serialized).to.equal('candidate:702786350 2 UDP 4189902 8.8.8.8 ' +
+          '60769 typ host ufrag abc');
+    });
 
-  it('parses relatedAddress', () => {
-    expect(candidate.relatedAddress).to.equal('8.8.8.8');
-  });
+    it('does not add relatedAddress and relatedPort for host candidates', () => {
+      candidate.relatedAddress = '8.8.8.8';
+      candidate.relatedPort = 1234;
 
-  it('parses relatedPort', () => {
-    expect(candidate.relatedPort).to.equal(1234);
-  });
+      serialized = SDPUtils.writeCandidate(candidate).trim();
+      expect(serialized).to.equal('candidate:702786350 2 UDP 4189902 8.8.8.8 ' +
+          '60769 typ host');
+    });
 
-  it('parses ufrag', () => {
-    expect(candidate.ufrag).to.equal('abc');
+    it('ignores tcpType for udp candidates', () => {
+      candidate.tcpType = 'active';
+      serialized = SDPUtils.writeCandidate(candidate).trim();
+      expect(serialized).to.equal('candidate:702786350 2 UDP 4189902 8.8.8.8 ' +
+          '60769 typ host');
+    });
   });
 });
