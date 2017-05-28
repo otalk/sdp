@@ -641,3 +641,77 @@ describe('ice candidate', () => {
     });
   });
 });
+
+describe('writeRtpDescription', () => {
+  const kind = 'audio';
+  let parameters;
+  beforeEach(() => {
+    parameters = {
+      codecs: [{
+        payloadType: 111,
+        name: 'opus',
+        clockRate: 48000,
+        numChannels: 2,
+        parameters: {
+          minptime: '10'
+        }
+      }],
+      headerExtensions: [{
+        id: 2,
+        uri: 'urn:ietf:params:rtp-hdrext:toffset'
+      }],
+    };
+  });
+
+  it('generates a rejected m-line if the codecs are empty', () => {
+    parameters.codecs = [];
+    const serialized = SDPUtils.writeRtpDescription(kind, parameters);
+    expect(serialized).to.contain('m=' + kind + ' 0 ');
+  });
+
+  it('generates rtpmap lines', () => {
+    const serialized = SDPUtils.writeRtpDescription(kind, parameters);
+    expect(serialized).to.contain('a=rtpmap:111');
+  });
+
+  it('generates rtpmap lines using preferredPayloadType', () => {
+    delete parameters.codecs[0].payloadType;
+    parameters.codecs[0].preferredPayloadType = 111;
+    const serialized = SDPUtils.writeRtpDescription(kind, parameters);
+    expect(serialized).to.contain('a=rtpmap:111');
+  });
+
+
+  it('generates fmtp lines for codecs with parameters', () => {
+    const serialized = SDPUtils.writeRtpDescription(kind, parameters);
+    expect(serialized).to.contain('a=fmtp:');
+  });
+
+  it('does not generate fmtp lines for codecs with no parameters', () => {
+    delete parameters.codecs[0].parameters;
+    const serialized = SDPUtils.writeRtpDescription(kind, parameters);
+    expect(serialized).not.to.contain('a=fmtp:');
+  });
+
+  it('generates rtcp-fb lines for codecs with rtcp-feedback', () => {
+    parameters.codecs[0].rtcpFeedback = [{type: 'nack'}];
+    const serialized = SDPUtils.writeRtpDescription(kind, parameters);
+    expect(serialized).to.contain('a=rtcp-fb:');
+  });
+
+  it('does not generate rtcp-fb lines for codecs with no feedback', () => {
+    const serialized = SDPUtils.writeRtpDescription(kind, parameters);
+    expect(serialized).not.to.contain('a=rtcp-fb:');
+  });
+ 
+  it('generates extmap lines for headerExtensions', () => {
+    const serialized = SDPUtils.writeRtpDescription(kind, parameters);
+    expect(serialized).to.contain('a=extmap:2 urn:ietf:params:rtp-hdrext:toffset\r\n');
+  });
+
+  it('does not generate extmap lines if there are no headerExtensions', () => {
+    parameters.headerExtensions = [];
+    const serialized = SDPUtils.writeRtpDescription(kind, parameters);
+    expect(serialized).not.to.contain('a=extmap:');
+  });
+});
