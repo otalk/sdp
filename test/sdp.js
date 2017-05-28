@@ -2,10 +2,14 @@
 'use strict';
 
 // tests for the Edge SDP parser. Tests plain JS so can be run in node.
-var test = require('tape');
-var SDPUtils = require('../sdp.js');
+const SDPUtils = require('../sdp.js');
 
-var videoSDP =
+const chai = require('chai');
+const expect = chai.expect;
+const sinon = require('sinon');
+chai.use(require('sinon-chai'));
+
+const videoSDP =
   'v=0\r\no=- 1376706046264470145 3 IN IP4 127.0.0.1\r\ns=-\r\n' +
   't=0 0\r\na=group:BUNDLE video\r\n' +
   'a=msid-semantic: WMS EZVtYL50wdbfttMdmVFITVoKc4XgA0KBZXzd\r\n' +
@@ -43,7 +47,7 @@ var videoSDP =
   'a=ssrc:2715962409 label:63238d63-9a20-4afc-832c-48678926afce\r\n';
 
 // Firefox offer
-var videoSDP2 =
+const videoSDP2 =
   'v=0\r\n' +
   'o=mozilla...THIS_IS_SDPARTA-45.0 5508396880163053452 0 IN IP4 0.0.0.0\r\n' +
   's=-\r\nt=0 0\r\n' +
@@ -67,228 +71,379 @@ var videoSDP2 =
   'a=rtpmap:97 H264/90000\r\na=setup:actpass\r\n' +
   'a=ssrc:98927270 cname:{0817e909-53be-4a3f-ac45-b5a0e5edc3a7}\r\n';
 
-test('splitSections', function(t) {
-  var parsed = SDPUtils.splitSections(videoSDP.replace(/\r\n/g, '\n'));
-  t.ok(parsed.length === 2,
-      'split video-only SDP with only LF into two sections');
+describe('splitSections', () => {
+  let parsed;
+  it('splits video-only SDP with only LF into two sections', () => {
+    parsed = SDPUtils.splitSections(videoSDP.replace(/\r\n/g, '\n'));
+    expect(parsed.length).to.equal(2);
+  });
 
-  parsed = SDPUtils.splitSections(videoSDP);
-  t.ok(parsed.length === 2, 'split video-only SDP into two sections');
+  it('splits video-only SDP into two sections', () => {
+    parsed = SDPUtils.splitSections(videoSDP);
+    expect(parsed.length).to.equal(2);
+  });
+  
+  it('every section ends with CRLF', () => {
+    expect(parsed.every(function(section) {
+      return section.substr(-2) === '\r\n';
+    })).to.equal(true);
+  });
 
-  t.ok(parsed.every(function(section) {
-    return section.substr(-2) === '\r\n';
-  }), 'every section ends with CRLF');
-
-  t.ok(parsed.join('') === videoSDP,
-      'joining sections without separator recreates SDP');
-  t.end();
+  it('joining sections without separator recreates SDP', () => {
+    expect(parsed.join('')).to.equal(videoSDP);
+  });
 });
 
-test('parseRtpParameters', function(t) {
-  var sections = SDPUtils.splitSections(videoSDP);
-  var parsed = SDPUtils.parseRtpParameters(sections[1]);
-  t.ok(parsed.codecs.length === 9, 'parsed 9 codecs');
-  t.ok(parsed.fecMechanisms.length === 2, 'parsed FEC mechanisms');
-  t.ok(parsed.fecMechanisms.indexOf('RED') !== -1,
-      'parsed RED as FEC mechanism');
-  t.ok(parsed.fecMechanisms.indexOf('ULPFEC') !== -1,
-      'parsed ULPFEC as FEC mechanism');
-  t.ok(parsed.headerExtensions.length === 3, 'parsed 3 header extensions');
-  t.end();
+describe('parseRtpParameters with the video sdp example', () => {
+  const sections = SDPUtils.splitSections(videoSDP);
+  const parsed = SDPUtils.parseRtpParameters(sections[1]);
+
+  it('parses 9 codecs', () => {
+    expect(parsed.codecs.length).to.equal(9);
+  });
+
+  describe('fecMechanisms', () => {
+    it('parses 2 fecMechanisms', () => {
+      expect(parsed.fecMechanisms.length).to.equal(2);
+    });
+
+    it('parses RED as FEC mechanism', () => {
+      expect(parsed.fecMechanisms).to.contain('RED');
+    });
+
+    it('parses ULPFEC as FEC mechanism', () => {
+      expect(parsed.fecMechanisms).to.contain('ULPFEC');
+    });
+  });
+
+  it('parses 3 headerExtensions', () => {
+    expect(parsed.headerExtensions.length).to.equal(3);
+  });
 });
 
-test('fmtp parsing and serialization', function(t) {
-  var line = 'a=fmtp:111 minptime=10; useinbandfec=1';
-  var parsed = SDPUtils.parseFmtp(line);
-  t.ok(Object.keys(parsed).length === 2, 'parsed 2 parameters');
-  t.ok(parsed.minptime === '10', 'parsed minptime');
-  t.ok(parsed.useinbandfec === '1', 'parsed useinbandfec');
+describe('fmtp', () => {
+  const line = 'a=fmtp:111 minptime=10; useinbandfec=1';
+  const parsed = SDPUtils.parseFmtp(line);
 
-  // TODO: is this safe or can the order change?
-  // serialization strings the extra whitespace after ';'
-  t.ok(SDPUtils.writeFmtp({payloadType: 111, parameters: parsed})
-      === line.replace('; ', ';') + '\r\n',
-      'serialization does not add extra spaces between parameters');
-  t.end();
+  describe('parsing', () => {
+    it('parses 2 parameters', () => {
+      expect(Object.keys(parsed).length).to.equal(2);
+    });
+
+    it('parses minptime', () => {
+      expect(parsed.minptime).to.equal('10');
+    });
+
+    it('parses useinbandfec', () => {
+      expect(parsed.useinbandfec).to.equal('1');
+    });
+  });
+
+  describe('serialization', () => {
+    // TODO: is this safe or can the order change?
+    // serialization strings the extra whitespace after ';'
+    it('does not add extra spaces between parameters', () => {
+      let out = SDPUtils.writeFmtp({
+        payloadType: 111,
+        parameters: parsed
+      }).trim();
+      expect(out).to.equal(line.replace('; ', ';'));
+    });
+  });
 });
 
-test('rtpmap parsing and serialization', function(t) {
-  var line = 'a=rtpmap:111 opus/48000/2';
-  var parsed = SDPUtils.parseRtpMap(line);
-  t.ok(parsed.name === 'opus', 'parsed codec name');
-  t.ok(parsed.payloadType === 111, 'parsed payloadType as integer');
-  t.ok(parsed.clockRate === 48000, 'parsed clockRate as integer');
-  t.ok(parsed.numChannels === 2, 'parsed numChannels');
+describe('rtpmap', () => {
+  const line = 'a=rtpmap:111 opus/48000/2';
+  const parsed = SDPUtils.parseRtpMap(line);
+  describe('parsing', () => {
+    it('parses codec name', () => {
+      expect(parsed.name).to.equal('opus');
+    });
 
-  parsed = SDPUtils.parseRtpMap('a=rtpmap:0 PCMU/8000');
-  t.ok(parsed.numChannels === 1, 'numChannels defaults to 1 if not present');
+    it('parses payloadType as integer', () => {
+      expect(parsed.payloadType).to.equal(111);
+    });
 
-  t.ok(SDPUtils.writeRtpMap({
-    payloadType: 111,
-    name: 'opus',
-    clockRate: 48000,
-    numChannels: 2
-  }).trim() === line, 'serialized rtpmap');
+    it('parses clockRate as an integer', () => {
+      expect(parsed.clockRate).to.equal(48000);
+    });
 
-  t.end();
+    it('parses numChannels as an integer', () => {
+      expect(parsed.numChannels).to.equal(2);
+    });
+
+    it('parses numChannels and defaults to 1 if not present', () => {
+      expect(SDPUtils.parseRtpMap('a=rtpmap:0 PCMU/8000').numChannels)
+          .to.equal(1);
+    });
+  });
+
+  describe('serialization', () => {
+    it('generates the expected output', () => {
+      let out = SDPUtils.writeRtpMap({
+        payloadType: 111,
+        name: 'opus',
+        clockRate: 48000,
+        numChannels: 2
+      }).trim();
+      expect(out).to.equal(line);
+    });
+
+    it('does not append numChannels when there is only one channel', () => {
+      let out = SDPUtils.writeRtpMap({
+        payloadType: 0,
+        name: 'pcmu',
+        clockRate: 8000,
+        numChannels: 1
+      }).trim();
+      expect(out).to.equal('a=rtpmap:0 pcmu/8000');
+    });
+  });
 });
 
-test('parseRtpEncodingParameters', function(t) {
-  var sections = SDPUtils.splitSections(videoSDP);
-  var data = SDPUtils.parseRtpEncodingParameters(sections[1]);
-  t.ok(data.length === 8, 'parsed encoding parameters for four codecs');
+describe('parseRtpEncodingParameters', () => {
+  let sections = SDPUtils.splitSections(videoSDP);
+  let data = SDPUtils.parseRtpEncodingParameters(sections[1]);
+  it('parses 8 encoding parameters for four codecs with fec', () => {
+    expect(data.length).to.equal(8);
+  });
 
-  t.ok(data[0].ssrc === 1734522595, 'parsed primary SSRC');
-  t.ok(data[0].rtx, 'has RTX encoding');
-  t.ok(data[0].rtx.ssrc === 2715962409, 'parsed secondary SSRC for RTX');
-  t.end();
+  it('parses primary ssrc', () => {
+    expect(data[0].ssrc).to.equal(1734522595);
+  });
+
+  it('parses RTX encoding and ssrc', () => {
+    expect(data[0].rtx);
+    expect(data[0].rtx.ssrc).to.equal(2715962409);
+  });
+
+  it('parses ssrc from cname as a fallback', () => {
+    sections = SDPUtils.splitSections(videoSDP2);
+    data = SDPUtils.parseRtpEncodingParameters(sections[1]);
+
+    expect(data.length).to.equal(1);
+    expect(data[0].ssrc).to.equal(98927270);
+  });
+
+  it('parses b=AS', () => {
+    sections = SDPUtils.splitSections(
+        videoSDP.replace('c=IN IP4 0.0.0.0\r\n',
+                         'c=IN IP4 0.0.0.0\r\nb=AS:512\r\n')
+    );
+    data = SDPUtils.parseRtpEncodingParameters(sections[1]);
+
+    expect(data[0].maxBitrate).to.equal(512);
+  });
+
+  it('parses b=TIAS', () => {
+    sections = SDPUtils.splitSections(
+        videoSDP.replace('c=IN IP4 0.0.0.0\r\n',
+                         'c=IN IP4 0.0.0.0\r\nb=TIAS:512000\r\n')
+    );
+    data = SDPUtils.parseRtpEncodingParameters(sections[1]);
+
+    expect(data[0].maxBitrate).to.equal(512000);
+  });
 });
 
-test('parseRtpEncodingParameters fallback', function(t) {
-  var sections = SDPUtils.splitSections(videoSDP2);
-  var data = SDPUtils.parseRtpEncodingParameters(sections[1]);
-
-  t.ok(data.length === 1 && data[0].ssrc === 98927270, 'parsed single SSRC');
-  t.end();
+describe('rtcp feedback', () => {
+  describe('serialization', () => {
+    it('serializes', () => {
+      const codec = { payloadType: 100,
+        rtcpFeedback: [
+          { type: 'nack', parameter: 'pli' },
+          { type: 'nack' }
+        ]
+      };
+      const expected = 'a=rtcp-fb:100 nack pli\r\n' +
+        'a=rtcp-fb:100 nack\r\n';
+      expect(SDPUtils.writeRtcpFb(codec)).to.equal(expected);
+    });
+  })
 });
 
-test('parseRtpEncodingParameters with b=AS', function(t) {
-  var sections = SDPUtils.splitSections(
-      videoSDP.replace('c=IN IP4 0.0.0.0\r\n',
-                       'c=IN IP4 0.0.0.0\r\nb=AS:512\r\n')
-  );
-  var data = SDPUtils.parseRtpEncodingParameters(sections[1]);
-
-  t.ok(data[0].maxBitrate === 512, 'parsed b=AS:512');
-  t.end();
-});
-
-test('parseRtpEncodingParameters with b=TIAS', function(t) {
-  var sections = SDPUtils.splitSections(
-      videoSDP.replace('c=IN IP4 0.0.0.0\r\n',
-                       'c=IN IP4 0.0.0.0\r\nb=TIAS:512\r\n')
-  );
-  var data = SDPUtils.parseRtpEncodingParameters(sections[1]);
-
-  t.ok(data[1].maxBitrate === 512, 'parsed b=TIAS:512');
-  t.end();
-});
-
-test('writeRtcpFb', function(t) {
-  var codec = { payloadType: 100,
-    rtcpFeedback: [
-      { type: 'nack', parameter: 'pli' },
-      { type: 'nack' }
-    ]
-  };
-  var expected = 'a=rtcp-fb:100 nack pli\r\n' +
-    'a=rtcp-fb:100 nack\r\n';
-  t.ok(SDPUtils.writeRtcpFb(codec) === expected, 'wrote rtcp-fb');
-  t.end();
-});
-
-test('getKind', function(t) {
-  var mediaSection = 'm=video 9 UDP/TLS/RTP/SAVPF 120 126 97\r\n' +
+it('getKind', () => {
+  const mediaSection = 'm=video 9 UDP/TLS/RTP/SAVPF 120 126 97\r\n' +
       'c=IN IP4 0.0.0.0\r\na=sendrecv\r\n';
-  t.ok(SDPUtils.getKind(mediaSection) === 'video',
-      'extracted mediaSection kind');
-  t.end();
+  expect(SDPUtils.getKind(mediaSection)).to.equal('video');
 });
 
-test('isRejected', function(t) {
-  var ok = 'm=video 9 UDP/TLS/RTP/SAVPF 120 126 97\r\n';
-  var rej = 'm=video 0 UDP/TLS/RTP/SAVPF 120 126 97\r\n';
-  t.ok(SDPUtils.isRejected(ok) === false, 'port 9 is not rejected');
-  t.ok(SDPUtils.isRejected(rej) === true, 'port 0 is rejected');
-  t.end();
+describe('isRejected', () => {
+  it('returns true if the m-lines port is 0', () => {
+    const rej = 'm=video 0 UDP/TLS/RTP/SAVPF 120 126 97\r\n';
+    expect(SDPUtils.isRejected(rej)).to.equal(true);
+  });
+
+  it('returns false for a non-zero port', () => {
+    const ok = 'm=video 9 UDP/TLS/RTP/SAVPF 120 126 97\r\n';
+    expect(SDPUtils.isRejected(ok)).to.equal(false);
+  });
 });
 
-test('parseRtcpParameters', function(t) {
-  var rtcp = SDPUtils.parseRtcpParameters(videoSDP);
-  t.ok(rtcp.cname === 'VrveQctHgkwqDKj6', 'parsed RTCP cname');
-  t.ok(rtcp.ssrc === 1734522595, 'parsed RTCP ssrc');
-  t.ok(rtcp.reducedSize === true, 'parsed RTCP reducedSize');
-  t.ok(rtcp.compound === false, 'parsed RTCP compound');
-  t.ok(rtcp.mux === true, 'parse RTCP mux');
-  t.end();
+describe('parseRtcpParameters', () => {
+  const rtcp = SDPUtils.parseRtcpParameters(videoSDP);
+
+  it('parses cname', () => {
+    expect(rtcp.cname).to.equal('VrveQctHgkwqDKj6');
+  });
+
+  it('parses ssrc', () => {
+    expect(rtcp.ssrc).to.equal(1734522595);
+  });
+
+  it('parses reduced size', () => {
+    expect(rtcp.reducedSize).to.equal(true);
+  });
+
+  it('parses compoind', () => {
+    expect(rtcp.compound).to.equal(false);
+  });
+
+  it('parses mux', () => {
+    expect(rtcp.mux).to.equal(true);
+  });
 });
 
-
-test('parseFingerprint', function(t) {
-  var res = SDPUtils.parseFingerprint('a=fingerprint:ALG fp');
-  t.ok(res.algorithm === 'alg', 'algorithm is parsed and lowercased');
-  t.ok(res.value === 'fp', 'value is parsed');
-  t.end();
+describe('parseFingerprint', () => {
+  const res = SDPUtils.parseFingerprint('a=fingerprint:ALG fp');
+  it('parses and lowercaseѕ the algorithm', () => {
+    expect(res.algorithm).to.equal('alg');
+  });
+  it('parses the fingerprint value', () => {
+    expect(res.value).to.equal('fp');
+  });
 });
 
-test('getDtlsParameters', function(t) {
-  var fp = 'a=fingerprint:sha-256 so:me:th:in:g1\r\na=fingerprint:SHA-1 somethingelse';
-  var dtlsParameters = SDPUtils.getDtlsParameters(fp, '');
-  t.ok(dtlsParameters.role === 'auto', 'set role to "auto"');
-  t.ok(dtlsParameters.fingerprints.length === 2, 'parsed two fingerprints');
-  t.ok(dtlsParameters.fingerprints[0].algorithm === 'sha-256', 'extracted algorithm');
-  t.ok(dtlsParameters.fingerprints[0].value === 'so:me:th:in:g1', 'extracted value');
-  t.ok(dtlsParameters.fingerprints[1].algorithm === 'sha-1', 'extracted second algorithm (lowercased)');
-  t.ok(dtlsParameters.fingerprints[1].value === 'somethingelse', 'extracted second value');
-  t.end();
+describe('getDtlsParameters', () => {
+  const fp = 'a=fingerprint:sha-256 so:me:th:in:g1\r\n' +
+      'a=fingerprint:SHA-1 somethingelse';
+  const dtlsParameters = SDPUtils.getDtlsParameters(fp, '');
+
+  it('sets the role to auto', () => {
+    expect(dtlsParameters.role).to.equal('auto');
+  })
+
+  it('parses two fingerprints', () => {
+    expect(dtlsParameters.fingerprints.length).to.equal(2);
+  });
+
+  it('extracts the algorithm', () => {
+    expect(dtlsParameters.fingerprints[0].algorithm).to.equal('sha-256');
+    expect(dtlsParameters.fingerprints[1].algorithm).to.equal('sha-1');
+  });
+
+  it('extracts the fingerprints', () => {
+    expect(dtlsParameters.fingerprints[0].value).to.equal('so:me:th:in:g1');
+    expect(dtlsParameters.fingerprints[1].value).to.equal('somethingelse');
+  });
 });
 
-test('getMid', function(t) {
-  var mediaSection = 'm=video 9 UDP/TLS/RTP/SAVPF 120 126 97\r\n' +
+describe('getMid', () => {
+  const mediaSection = 'm=video 9 UDP/TLS/RTP/SAVPF 120 126 97\r\n' +
       'c=IN IP4 0.0.0.0\r\na=sendrecv\r\n';
-  t.ok(SDPUtils.getMid(mediaSection + 'a=mid:foo\r\n') === 'foo', 'returns the mid');
-  t.ok(SDPUtils.getMid(mediaSection) === undefined, 'returns undefined when no a=mid is present');
-  t.end();
+  it('returns undefined if no mid attribute is found', () => {
+    expect(SDPUtils.getMid(mediaSection)).to.equal(undefined);
+  });
+  
+  it('returns the mid attribute', () => {
+   expect(SDPUtils.getMid(mediaSection + 'a=mid:foo\r\n')).to.equal('foo');
+  });
 });
 
-test('parseIceOptions', function(t) {
-  var result = SDPUtils.parseIceOptions('a=ice-options:trickle something');
-  t.ok(Array.isArray(result), 'returns an array of options');
-  t.ok(result.length === 2, 'returns two items for the given data');
-  t.ok(result[0] === 'trickle', 'first option equals "trickle"');
-  t.ok(result[1] === 'something', 'first option equals "something"');
-  t.end()
+describe('parseIceOptions', () => {
+  const result = SDPUtils.parseIceOptions('a=ice-options:trickle something');
+  it('returns an array of options', () => {
+    expect(result).to.be.an('Array');
+    expect(result.length).to.equal(2);
+
+    expect(result[0]).to.equal('trickle');
+    expect(result[1]).to.equal('something');
+  });
 });
 
-test('parseExtmap', function(t) {
-  var res = SDPUtils.parseExtmap('a=extmap:2 uri');
-  t.ok(res.id === 2, 'parses extmap id');
-  t.ok(res.uri === 'uri', 'parses extmap uri');
-  t.ok(res.direction === 'sendrecv', 'direction defaults to sendrecv');
+describe('extmap', () => {
+  describe('parseExtmap', () => {
+    let res = SDPUtils.parseExtmap('a=extmap:2 uri');
 
-  res = SDPUtils.parseExtmap('a=extmap:2/sendonly uri');
-  t.ok(res.id === 2, 'parses extmap id when direction is present');
-  t.ok(res.direction === 'sendonly', 'parses extmap direction');
+    it('parses the extmap id', () => {
+      expect(res.id).to.equal(2);
+    });
 
-  t.end();
+    it('parses the extmap uri', () => {
+      expect(res.uri).to.equal('uri');
+    });
+
+    it('parses the direction defaulting to sendrecv', () => {
+      expect(res.direction).to.equal('sendrecv');
+    });
+
+    it('parses id and direction when direction is present', () => {
+      res = SDPUtils.parseExtmap('a=extmap:2/sendonly uri');
+      expect(res.id === 2, 'parses extmap id when direction is present');
+      expect(res.direction === 'sendonly', 'parses extmap direction');
+    });
+  });
+
+  describe('writeExtmap', () => {
+    it('writes extmap without direction', () => {
+      expect(SDPUtils.writeExtmap({id: 1, uri: 'uri'}))
+          .to.equal('a=extmap:1 uri\r\n');
+    });
+
+    it('writes extmap without direction when direction is sendrecv (default)', () => {
+      expect(SDPUtils.writeExtmap({id: 1, uri: 'uri', direction: 'sendrecv'}))
+          .to.equal('a=extmap:1 uri\r\n');
+    });
+
+    it('writes extmap with direction when direction is not sendrecv', () => {
+      expect(SDPUtils.writeExtmap({id: 1, uri: 'uri', direction: 'sendonly'}))
+          .to.equal('a=extmap:1/sendonly uri\r\n');
+    });
+  });
 });
 
-test('writeExtmap', function(t) {
-  t.ok(SDPUtils.writeExtmap({id: 1, uri: 'uri'}) === 'a=extmap:1 uri\r\n',
-      'writes extmap without direction');
-  t.ok(SDPUtils.writeExtmap({id: 1, uri: 'uri', direction: 'sendrecv'}) === 'a=extmap:1 uri\r\n',
-      'writes extmap without direction when direction is sendrecv (default)');
-  t.ok(SDPUtils.writeExtmap({id: 1, uri: 'uri', direction: 'sendonly'}) === 'a=extmap:1/sendonly uri\r\n',
-      'writes extmap with direction when direction is not sendrecv');
-  t.end();
-});
-
-test('parseCandidate', function(t) {
-  var candidateString = 'candidate:702786350 2 udp 41819902 8.8.8.8 60769 ' +
+describe('parseCandidate', () => {
+  const candidateString = 'candidate:702786350 2 udp 41819902 8.8.8.8 60769 ' +
       'typ relay raddr 8.8.8.8 rport 1234 ' +
       'tcptype active ' +
       'ufrag abc';
-  var candidate = SDPUtils.parseCandidate(candidateString);
+  const candidate = SDPUtils.parseCandidate(candidateString);
 
-  t.ok(candidate.foundation === '702786350', 'parsed foundation');
-  t.ok(candidate.component ===  2, 'parsed component');
-  t.ok(candidate.priority === 41819902, 'parsed priority');
-  t.ok(candidate.ip === '8.8.8.8', 'parsed ip');
-  t.ok(candidate.protocol === 'udp', 'parsed protocol');
-  t.ok(candidate.port === 60769, 'parsed port');
-  t.ok(candidate.tcpType === 'active', 'parsed tcpType');
-  t.ok(candidate.relatedAddress === '8.8.8.8', 'parsed relatedAddress');
-  t.ok(candidate.relatedPort === 1234, 'parsed relatedPort');
-  t.ok(candidate.ufrag === 'abc', 'parsed ufrag');
-  t.end();
+  it('parses foundation', () => {
+    expect(candidate.foundation).to.equal('702786350');
+  });
+  it('parses component', () => {
+    expect(candidate.component).to.equal(2);
+  });
+  it('parses priority', () => {
+    expect(candidate.priority).to.equal(41819902, 'parses priority');
+  });
+
+  it('parses ip', () => {
+    expect(candidate.ip).to.equal('8.8.8.8');
+  });
+
+  it('parses protocol', () => {
+    expect(candidate.protocol).to.equal('udp');
+  });
+
+  it('parses port', () => {
+    expect(candidate.port).to.equal(60769);
+  });
+
+  it('parses tcpType', () => {
+    expect(candidate.tcpType).to.equal('active');
+  });
+
+  it('parses relatedAddress', () => {
+    expect(candidate.relatedAddress).to.equal('8.8.8.8');
+  });
+
+  it('parses relatedPort', () => {
+    expect(candidate.relatedPort).to.equal(1234);
+  });
+
+  it('parses ufrag', () => {
+    expect(candidate.ufrag).to.equal('abc');
+  });
 });
