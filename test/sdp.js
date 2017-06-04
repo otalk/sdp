@@ -726,3 +726,14 @@ describe('writeRtpDescription', () => {
     expect(serialized).not.to.contain('a=extmap:');
   });
 });
+
+describe('writeBoilerPlate', () => {
+  let sdp;
+  beforeEach(() => {
+    sdp = SDPUtils.writeSessionBoilerplate();
+  });
+  
+  it('returns a string', () => {
+    expect(sdp).to.be.a('String');
+  });
+});
