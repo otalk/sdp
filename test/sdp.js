@@ -736,4 +736,14 @@ describe('writeBoilerPlate', () => {
   it('returns a string', () => {
     expect(sdp).to.be.a('String');
   });
+
+  it('generates unique id', () => {
+    expect(sdp).to.not.equal(SDPUtils.writeSessionBoilerplate());
+  });
+
+  it('uses passed in session id', () => {
+    let sessionId = 'uniqueTestSessionId1';
+    let sdpWithSession = SDPUtils.writeSessionBoilerplate(sessionId);
+    expect(sdpWithSession).to.include(' ' + sessionId + ' ');
+  });
 });
