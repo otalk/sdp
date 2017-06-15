@@ -517,10 +517,10 @@ SDPUtils.parseMsid = function(mediaSection) {
   }
 };
 
-// Generate a session ID for SDP.  There is a suggestion
-// in the RFC to use NTP timestamp, but as long as it's unlikely
-// to conflict we should be OK.
-// TODO: use UUIDs instead? https://gist.github.com/jed/982883
+// Generate a session ID for SDP.
+// https://tools.ietf.org/html/draft-ietf-rtcweb-jsep-20#section-5.2.1
+// recommends using a cryptographically random +ve 64-bit value
+// but right now this should be acceptable and within the right range
 SDPUtils.generateSessionId = function() {
   return Math.random().toString().substr(2, 21);
 };
