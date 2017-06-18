@@ -746,4 +746,17 @@ describe('writeBoilerPlate', () => {
     let sdpWithSession = SDPUtils.writeSessionBoilerplate(sessionId);
     expect(sdpWithSession).to.include(' ' + sessionId + ' ');
   });
+
+  it('defaults to version 2', () => {
+    let ver = 4404;
+    let id = 123;
+    let sdpWithSessionVersion = SDPUtils.writeSessionBoilerplate(id, ver);
+    expect(sdpWithSessionVersion).to.include(id + ' ' + ver + ' ');
+  });
+
+  it('uses passed session version', () => {
+    let ver = 4404;
+    let sdpWithSessionVersion = SDPUtils.writeSessionBoilerplate(undefined, ver);
+    expect(sdpWithSessionVersion).to.include(' ' + ver + ' ');
+  });
 });

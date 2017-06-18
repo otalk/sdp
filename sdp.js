@@ -528,8 +528,10 @@ SDPUtils.generateSessionId = function() {
 // Write boilder plate for start of SDP
 // sessId argument is optional - if not supplied it will
 // be generated randomly
-SDPUtils.writeSessionBoilerplate = function(sessId) {
+// sessVersion is optional and defaults to 2
+SDPUtils.writeSessionBoilerplate = function(sessId, sessVer) {
   var sessionId;
+  var version = sessVer !== undefined ? sessVer : 2;
   if (sessId) {
     sessionId = sessId;
   } else {
@@ -537,7 +539,7 @@ SDPUtils.writeSessionBoilerplate = function(sessId) {
   }
   // FIXME: sess-id should be an NTP timestamp.
   return 'v=0\r\n' +
-      'o=thisisadapterortc ' + sessionId + ' 2 IN IP4 127.0.0.1\r\n' +
+      'o=thisisadapterortc ' + sessionId + ' ' + version + ' IN IP4 127.0.0.1\r\n' +
       's=-\r\n' +
       't=0 0\r\n';
 };
