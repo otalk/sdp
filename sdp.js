@@ -68,6 +68,10 @@ SDPUtils.parseCandidate = function(line) {
       case 'tcptype':
         candidate.tcpType = parts[i + 1];
         break;
+      case 'ufrag':
+        candidate.ufrag = parts[i + 1]; // for backward compability.
+        candidate.usernameFragment = parts[i + 1];
+        break;
       default: // extension handling, in particular ufrag
         candidate[parts[i]] = parts[i + 1];
         break;

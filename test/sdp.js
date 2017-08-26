@@ -550,7 +550,8 @@ describe('ice candidate', () => {
     const candidateString = 'candidate:702786350 2 udp 41819902 8.8.8.8 60769 ' +
         'typ relay raddr 8.8.8.8 rport 1234 ' +
         'tcptype active ' +
-        'ufrag abc';
+        'ufrag abc ' +
+        'generation 0';
     const candidate = SDPUtils.parseCandidate(candidateString);
 
     it('parses foundation', () => {
@@ -593,6 +594,14 @@ describe('ice candidate', () => {
 
     it('parses ufrag', () => {
       expect(candidate.ufrag).to.equal('abc');
+    });
+
+    it('parses ufrag as usernameFragment', () => {
+      expect(candidate.usernameFragment).to.equal('abc');
+    });
+
+    it('parses an unknown key-value element like generation', () => {
+      expect(candidate.generation).to.equal('0');
     });
 
     it('parses the candidate with the legacy a= prefix', () => {
