@@ -325,12 +325,18 @@ it('getKind', () => {
 describe('getDirection', () => {
   const mediaSection = 'm=video 9 UDP/TLS/RTP/SAVPF 120 126 97\r\n' +
       'c=IN IP4 0.0.0.0\r\na=sendonly\r\n';
-  it('parses the direction from the mediaSection', () => {
-    expect(SDPUtils.getDirection(mediaSection)).to.equal('sendonly');
+  describe('parses the direction from the mediaSection', () => {
+    ['sendrecv', 'sendonly', 'recvonly', 'inactive'].forEach((direction) => {
+      expect(SDPUtils.getDirection(mediaSection.replace('sendonly', direction))).to.equal(direction);
+    });
   });
 
   it('falls back to sendrecv', () => {
     expect(SDPUtils.getDirection('')).to.equal('sendrecv');
+  });
+
+  it('falls back to getting the direction from the session part', () => {
+    expect(SDPUtils.getDirection('', 'a=sendonly')).to.equal('sendonly');
   });
 });
 
@@ -541,6 +547,11 @@ describe('extmap', () => {
     it('writes extmap with direction when direction is not sendrecv', () => {
       expect(SDPUtils.writeExtmap({id: 1, uri: 'uri', direction: 'sendonly'}))
           .to.equal('a=extmap:1/sendonly uri\r\n');
+    });
+
+    it('writes extmap with preferredId when id is not present', () => {
+      expect(SDPUtils.writeExtmap({preferredId: 1, uri: 'uri'}))
+          .to.equal('a=extmap:1 uri\r\n');
     });
   });
 });
