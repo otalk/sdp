@@ -645,4 +645,6 @@ SDPUtils.parseMLine = function(mediaSection) {
 };
 
 // Expose public methods.
-module.exports = SDPUtils;
+if (typeof module === 'object') {
+  module.exports = SDPUtils;
+}
