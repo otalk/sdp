@@ -769,3 +769,22 @@ describe('writeBoilerPlate', () => {
     expect(sdpWithSessionVersion).to.include(' ' + ver + ' ');
   });
 });
+
+describe('parseMLine', () => {
+  let result = SDPUtils.parseMLine('m=video 9 UDP/TLS/RTP/SAVPF 100 101 107 116 117 96 97 99 98');
+  it('parses the kind', () => {
+    expect(result.kind).to.equal('video');
+  });
+
+  it('parses the port as an integer', () => {
+    expect(result.port).to.equal(9);
+  });
+  
+  it('parses the protocol', () => {
+    expect(result.protocol).to.equal('UDP/TLS/RTP/SAVPF');
+  });
+
+  it('parses the format list', () => {
+    expect(result.fmt).to.equal('100 101 107 116 117 96 97 99 98');
+  });
+});
