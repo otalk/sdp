@@ -633,5 +633,16 @@ SDPUtils.isRejected = function(mediaSection) {
   return mediaSection.split(' ', 2)[1] === '0';
 };
 
+SDPUtils.parseMLine = function(mediaSection) {
+  var lines = SDPUtils.splitLines(mediaSection);
+  var mline = lines[0].split(' ');
+  return {
+    kind: mline[0].substr(2),
+    port: parseInt(mline[1], 10),
+    protocol: mline[2],
+    fmt: mline.slice(3).join(' ')
+  };
+};
+
 // Expose public methods.
 module.exports = SDPUtils;
