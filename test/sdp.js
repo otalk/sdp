@@ -782,7 +782,7 @@ describe('writeBoilerPlate', () => {
 });
 
 describe('parseMLine', () => {
-  let result = SDPUtils.parseMLine('m=video 9 UDP/TLS/RTP/SAVPF 100 101 107 116 117 96 97 99 98');
+  const result = SDPUtils.parseMLine('m=video 9 UDP/TLS/RTP/SAVPF 100 101 107 116 117 96 97 99 98');
   it('parses the kind', () => {
     expect(result.kind).to.equal('video');
   });
@@ -798,4 +798,20 @@ describe('parseMLine', () => {
   it('parses the format list', () => {
     expect(result.fmt).to.equal('100 101 107 116 117 96 97 99 98');
   });
+});
+
+describe('parseOLine', () => {
+  const result = SDPUtils.parseOLine('o=username someid 15 IN IP4 0.0.0.0');
+  it('parses the username', () =>
+    expect(result.username).to.equal('username'));
+  it('parse the session id', () =>
+    expect(result.sessionId).to.equal('someid'));
+  it('parses the session version', () =>
+    expect(result.sessionVersion).to.equal(15));
+  it('parses the netType', () => 
+    expect(result.netType).to.equal('IN'));
+  it('parses the addressType', () =>
+    expect(result.addressType).to.equal('IP4'));
+  it('parses the address', () =>
+    expect(result.address).to.equal('0.0.0.0'));
 });
