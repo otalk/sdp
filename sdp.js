@@ -386,8 +386,12 @@ SDPUtils.getIceParameters = function(mediaSection, sessionpart) {
 
 // Serializes ICE parameters to SDP.
 SDPUtils.writeIceParameters = function(params) {
-  return 'a=ice-ufrag:' + params.usernameFragment + '\r\n' +
+  let sdp = 'a=ice-ufrag:' + params.usernameFragment + '\r\n' +
       'a=ice-pwd:' + params.password + '\r\n';
+  if (params.iceLite) {
+    sdp += 'a=ice-lite\r\n';
+  }
+  return sdp;
 };
 
 // Parses the SDP media section and returns RTCRtpParameters.

@@ -562,10 +562,11 @@ describe('getIceParameters', () => {
 });
 
 describe('writeIceParameters', () => {
-  const serialized = SDPUtils.writeIceParameters({
+  const parameters = {
     usernameFragment: 'foo',
     password: 'bar'
-  });
+  };
+  const serialized = SDPUtils.writeIceParameters(parameters);
 
   it('serializes the usernameFragment', () => {
     expect(serialized).to.contain('a=ice-ufrag:foo');
@@ -573,6 +574,12 @@ describe('writeIceParameters', () => {
 
   it('serializes the password', () => {
     expect(serialized).to.contain('a=ice-pwd:bar');
+  });
+
+  it('includes ice-lite when іceLite is true', () => {
+    const lite = SDPUtils.writeIceParameters(Object.assign({}, parameters,
+      {iceLite: true}));
+    expect(lite).to.contain('a=ice-lite');
   });
 });
 
