@@ -516,6 +516,12 @@ describe('writeIceParameters', () => {
   it('serializes the password', () => {
      expect(serialized).to.contain('a=ice-pwd:bar');
   });
+
+  it('includes ice-lite when іceLite is true', () => {
+    const lite = SDPUtils.writeIceParameters(Object.assign({}, serialized,
+        {iceLite: true}));
+    expect(lite).to.contain('a=ice-lite');
+  });
 });
 
 describe('getMid', () => {
