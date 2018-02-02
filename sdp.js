@@ -27,6 +27,19 @@ SDPUtils.splitSections = function(blob) {
   });
 };
 
+// returns the session description.
+SDPUtils.getDescription = function(blob) {
+  var sections = SDPUtils.splitSections(blob);
+  return sections && sections[0];
+};
+
+// returns the individual media sections.
+SDPUtils.getMediaSections = function(blob) {
+  var sections = SDPUtils.splitSections(blob);
+  sections.shift();
+  return sections;
+};
+
 // Returns lines that start with a certain prefix.
 SDPUtils.matchPrefix = function(blob, prefix) {
   return SDPUtils.splitLines(blob).filter(function(line) {

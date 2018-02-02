@@ -73,6 +73,11 @@ const videoSDP2 =
 
 describe('splitSections', () => {
   let parsed;
+  it('returns an array', () => {
+    parsed = SDPUtils.splitSections(videoSDP);
+    expect(parsed).to.be.an('Array');
+  });
+
   it('splits video-only SDP with only LF into two sections', () => {
     parsed = SDPUtils.splitSections(videoSDP.replace(/\r\n/g, '\n'));
     expect(parsed.length).to.equal(2);
@@ -91,6 +96,32 @@ describe('splitSections', () => {
 
   it('joining sections without separator recreates SDP', () => {
     expect(parsed.join('')).to.equal(videoSDP);
+  });
+});
+
+describe('getDescription', () => {
+  let parsed;
+  it('returns a string with the session description part', () => {
+    parsed = SDPUtils.getDescription(videoSDP);
+    expect(parsed).to.be.an('String');
+  });
+
+  it('ends with a CRLF', () => {
+    parsed = SDPUtils.getDescription(videoSDP);
+    expect(parsed.substr(-2)).to.equal('\r\n');
+  });
+});
+
+describe('getMediaSections', () => {
+  let parsed;
+  it('returns an array', () => {
+    parsed = SDPUtils.getMediaSections(videoSDP);
+    expect(parsed).to.be.an('Array');
+  });
+
+  it('splits video-only SDP into one section', () => {
+    parsed = SDPUtils.getMediaSections(videoSDP);
+    expect(parsed.length).to.equal(1);
   });
 });
 
