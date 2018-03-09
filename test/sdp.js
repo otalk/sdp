@@ -686,6 +686,13 @@ describe('ice candidate', () => {
           '60769 typ host ufrag abc');
     });
 
+    it('adds ufrag if usernameFragment is present', () => {
+      candidate.usernameFragment = 'abc';
+      serialized = SDPUtils.writeCandidate(candidate).trim();
+      expect(serialized).to.equal('candidate:702786350 2 UDP 4189902 8.8.8.8 ' +
+          '60769 typ host ufrag abc');
+    });
+
     it('does not add relatedAddress and relatedPort for host candidates', () => {
       candidate.relatedAddress = '8.8.8.8';
       candidate.relatedPort = 1234;
