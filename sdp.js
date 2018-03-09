@@ -117,9 +117,9 @@ SDPUtils.writeCandidate = function(candidate) {
     sdp.push('tcptype');
     sdp.push(candidate.tcpType);
   }
-  if (candidate.ufrag) {
+  if (candidate.usernameFragment || candidate.ufrag) {
     sdp.push('ufrag');
-    sdp.push(candidate.ufrag);
+    sdp.push(candidate.usernameFragment || candidate.ufrag);
   }
   return 'candidate:' + sdp.join(' ');
 };
