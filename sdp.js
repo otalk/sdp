@@ -324,7 +324,10 @@ SDPUtils.getIceParameters = function(mediaSection, sessionpart) {
     })[0].substr(12),
     password: lines.filter(function(line) {
       return line.indexOf('a=ice-pwd:') === 0;
-    })[0].substr(10)
+    })[0].substr(10),
+    endOfCandidates: lines.filter(function(line) {
+      return line === 'a=end-of-candidates';
+    }).length > 0
   };
   return iceParameters;
 };
@@ -332,7 +335,8 @@ SDPUtils.getIceParameters = function(mediaSection, sessionpart) {
 // Serializes ICE parameters to SDP.
 SDPUtils.writeIceParameters = function(params) {
   return 'a=ice-ufrag:' + params.usernameFragment + '\r\n' +
-      'a=ice-pwd:' + params.password + '\r\n';
+      'a=ice-pwd:' + params.password + '\r\n' +
+      (params.endOfCandidates ? 'a=end-of-candidates\r\n' : '');
 };
 
 // Parses the SDP media section and returns RTCRtpParameters.
