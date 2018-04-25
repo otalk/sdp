@@ -196,6 +196,11 @@ describe('fmtp', () => {
       }).trim();
       expect(out).to.equal(line.replace('; ', ';'));
     });
+
+    it('serializes non-key-value telephone-event', () => {
+      const out = SDPUtils.writeFmtp({ payloadType: 100, parameters: {'0-15': undefined }});
+      expect(out).to.equal('a=fmtp:100 0-15\r\n');
+    });
   });
 });
 
