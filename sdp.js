@@ -204,7 +204,11 @@ SDPUtils.writeFmtp = function(codec) {
   if (codec.parameters && Object.keys(codec.parameters).length) {
     var params = [];
     Object.keys(codec.parameters).forEach(function(param) {
-      params.push(param + '=' + codec.parameters[param]);
+      if (codec.parameters[param]) {
+        params.push(param + '=' + codec.parameters[param]);
+      } else {
+        params.push(param);
+      }
     });
     line += 'a=fmtp:' + pt + ' ' + params.join(';') + '\r\n';
   }
