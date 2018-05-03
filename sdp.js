@@ -442,10 +442,10 @@ SDPUtils.parseRtpEncodingParameters = function(mediaSection) {
       var encParam = {
         ssrc: primarySsrc,
         codecPayloadType: parseInt(codec.parameters.apt, 10),
-        rtx: {
-          ssrc: secondarySsrc
-        }
       };
+      if (primarySsrc && secondarySsrc) {
+        encParam.rtx = {ssrc: secondarySsrc};
+      }
       encodingParameters.push(encParam);
       if (hasRed) {
         encParam = JSON.parse(JSON.stringify(encParam));
