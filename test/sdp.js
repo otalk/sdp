@@ -220,7 +220,11 @@ describe('rtpmap', () => {
       expect(parsed.clockRate).to.equal(48000);
     });
 
-    it('parses numChannels as an integer', () => {
+    it('parses channels as an integer', () => {
+      expect(parsed.channels).to.equal(2);
+    });
+
+    it('parses numChannels (legacy) as an integer', () => {
       expect(parsed.numChannels).to.equal(2);
     });
 
@@ -251,12 +255,21 @@ describe('rtpmap', () => {
       expect(out).to.equal(line);
     });
 
-    it('does not append numChannels when there is only one channel', () => {
+    it('does not append channels when there is only one channel', () => {
       let out = SDPUtils.writeRtpMap({
         payloadType: 0,
         name: 'pcmu',
         clockRate: 8000,
-        numChannels: 1
+        channels: 1
+      }).trim();
+      expect(out).to.equal('a=rtpmap:0 pcmu/8000');
+    });
+
+    it('does not append channels when channels is undefined', () => {
+      let out = SDPUtils.writeRtpMap({
+        payloadType: 0,
+        name: 'pcmu',
+        clockRate: 8000
       }).trim();
       expect(out).to.equal('a=rtpmap:0 pcmu/8000');
     });
