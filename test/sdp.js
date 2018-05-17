@@ -796,8 +796,14 @@ describe('writeRtpDescription', () => {
     expect(serialized).to.contain('a=extmap:2 urn:ietf:params:rtp-hdrext:toffset\r\n');
   });
 
-  it('does not generate extmap lines if there are no headerExtensions', () => {
+  it('does not generate extmap lines if headerExtensions is empty', () => {
     parameters.headerExtensions = [];
+    const serialized = SDPUtils.writeRtpDescription(kind, parameters);
+    expect(serialized).not.to.contain('a=extmap:');
+  });
+
+  it('does not generate extmap lines if there are no headerExtensions', () => {
+    delete parameters.headerExtensions;
     const serialized = SDPUtils.writeRtpDescription(kind, parameters);
     expect(serialized).not.to.contain('a=extmap:');
   });
