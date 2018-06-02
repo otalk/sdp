@@ -1,7 +1,5 @@
- /* jshint node: true */
 'use strict';
 
-// tests for the Edge SDP parser. Tests plain JS so can be run in node.
 const SDPUtils = require('../sdp.js');
 
 const chai = require('chai');
