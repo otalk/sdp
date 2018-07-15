@@ -431,6 +431,22 @@ describe('parseMsid', () => {
   });
 });
 
+describe('parseSsrcGroup', () => {
+  const line = 'a=ssrc-group:FID 1 2';
+  const parsed = SDPUtils.parseSsrcGroup(line);
+  it('returns an object', () => {
+    expect(parsed).to.be.an('Object');
+  });
+
+  it('parses the semantics', () => {
+    expect(parsed.semantics).to.equal('FID');
+  });
+
+  it('parses the ssrcs', () => {
+    expect(parsed.ssrcs).to.deep.equal([1, 2]);
+  });
+});
+
 describe('parseRtcpParameters', () => {
   const rtcp = SDPUtils.parseRtcpParameters(videoSDP);
 
