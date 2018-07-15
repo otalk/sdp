@@ -4,7 +4,7 @@ const SDPUtils = require('../sdp.js');
 
 const chai = require('chai');
 const expect = chai.expect;
-const sinon = require('sinon');
+require('sinon');
 chai.use(require('sinon-chai'));
 
 const videoSDP =
@@ -85,7 +85,7 @@ describe('splitSections', () => {
     parsed = SDPUtils.splitSections(videoSDP);
     expect(parsed.length).to.equal(2);
   });
-  
+
   it('every section ends with CRLF', () => {
     expect(parsed.every(function(section) {
       return section.substr(-2) === '\r\n';
@@ -196,7 +196,8 @@ describe('fmtp', () => {
     });
 
     it('serializes non-key-value telephone-event', () => {
-      const out = SDPUtils.writeFmtp({ payloadType: 100, parameters: {'0-15': undefined }});
+      const out = SDPUtils.writeFmtp({payloadType: 100,
+        parameters: {'0-15': undefined}});
       expect(out).to.equal('a=fmtp:100 0-15\r\n');
     });
   });
@@ -307,7 +308,7 @@ describe('parseRtpEncodingParameters', () => {
       data = SDPUtils.parseRtpEncodingParameters(sections[1]);
 
       // conversion formula from jsep.
-      expect(data[0].maxBitrate).to.equal(512 * 1000 * 0.95 - (50 * 40 * 8))
+      expect(data[0].maxBitrate).to.equal(512 * 1000 * 0.95 - (50 * 40 * 8));
     });
 
     it('of type TIAS is parsed', () => {
@@ -333,10 +334,10 @@ describe('parseRtpEncodingParameters', () => {
 describe('rtcp feedback', () => {
   describe('serialization', () => {
     it('serializes', () => {
-      const codec = { payloadType: 100,
+      const codec = {payloadType: 100,
         rtcpFeedback: [
-          { type: 'nack', parameter: 'pli' },
-          { type: 'nack' }
+          {type: 'nack', parameter: 'pli'},
+          {type: 'nack'}
         ]
       };
       const expected = 'a=rtcp-fb:100 nack pli\r\n' +
@@ -345,22 +346,22 @@ describe('rtcp feedback', () => {
     });
 
     it('serialized preferredPayloadType', () => {
-      const codec = { preferredPayloadType: 100,
+      const codec = {preferredPayloadType: 100,
         rtcpFeedback: [
-          { type: 'nack' }
+          {type: 'nack'}
         ]
       };
       const expected = 'a=rtcp-fb:100 nack\r\n';
       expect(SDPUtils.writeRtcpFb(codec)).to.equal(expected);
     });
-    
+
     it('does nothing if there is no rtcp feedback', () => {
-      const codec = { payloadType: 100,
+      const codec = {payloadType: 100,
         rtcpFeedback: []
       };
       expect(SDPUtils.writeRtcpFb(codec)).to.equal('');
     });
-  })
+  });
 });
 
 it('getKind', () => {
@@ -374,7 +375,8 @@ describe('getDirection', () => {
       'c=IN IP4 0.0.0.0\r\na=sendonly\r\n';
   describe('parses the direction from the mediaSection', () => {
     ['sendrecv', 'sendonly', 'recvonly', 'inactive'].forEach((direction) => {
-      expect(SDPUtils.getDirection(mediaSection.replace('sendonly', direction))).to.equal(direction);
+      const modifiedSection = mediaSection.replace('sendonly', direction);
+      expect(SDPUtils.getDirection(modifiedSection)).to.equal(direction);
     });
   });
 
@@ -470,7 +472,7 @@ describe('getDtlsParameters', () => {
 
   it('sets the role to auto', () => {
     expect(dtlsParameters.role).to.equal('auto');
-  })
+  });
 
   it('parses two fingerprints', () => {
     expect(dtlsParameters.fingerprints.length).to.equal(2);
@@ -496,8 +498,8 @@ describe('writeDtlsParameters', () => {
 
   const serialized = SDPUtils.writeDtlsParameters(parameters, type);
   it('serializes the fingerprints', () => {
-     expect(serialized).to.contain('a=fingerprint:sha-256 so:me:th:in:g1');
-     expect(serialized).to.contain('a=fingerprint:SHA-1 somethingelse');
+    expect(serialized).to.contain('a=fingerprint:sha-256 so:me:th:in:g1');
+    expect(serialized).to.contain('a=fingerprint:SHA-1 somethingelse');
   });
   it('serializes the type', () => {
     expect(serialized).to.contain('a=setup:' + type);
@@ -520,17 +522,17 @@ describe('getIceParameters', () => {
 });
 
 describe('writeIceParameters', () => {
-  const serialized= SDPUtils.writeIceParameters({
-      usernameFragment: 'foo',
-      password: 'bar'
+  const serialized = SDPUtils.writeIceParameters({
+    usernameFragment: 'foo',
+    password: 'bar'
   });
 
   it('serializes the usernameFragment', () => {
-     expect(serialized).to.contain('a=ice-ufrag:foo');
+    expect(serialized).to.contain('a=ice-ufrag:foo');
   });
 
   it('serializes the password', () => {
-     expect(serialized).to.contain('a=ice-pwd:bar');
+    expect(serialized).to.contain('a=ice-pwd:bar');
   });
 });
 
@@ -540,9 +542,9 @@ describe('getMid', () => {
   it('returns undefined if no mid attribute is found', () => {
     expect(SDPUtils.getMid(mediaSection)).to.equal(undefined);
   });
-  
+
   it('returns the mid attribute', () => {
-   expect(SDPUtils.getMid(mediaSection + 'a=mid:foo\r\n')).to.equal('foo');
+    expect(SDPUtils.getMid(mediaSection + 'a=mid:foo\r\n')).to.equal('foo');
   });
 });
 
@@ -586,9 +588,11 @@ describe('extmap', () => {
           .to.equal('a=extmap:1 uri\r\n');
     });
 
-    it('writes extmap without direction when direction is sendrecv (default)', () => {
-      expect(SDPUtils.writeExtmap({id: 1, uri: 'uri', direction: 'sendrecv'}))
-          .to.equal('a=extmap:1 uri\r\n');
+    it('writes extmap without direction when direction is ' +
+      'sendrecv (default)', () => {
+      const result = SDPUtils.writeExtmap({id: 1, uri: 'uri',
+        direction: 'sendrecv'});
+      expect(result).to.equal('a=extmap:1 uri\r\n');
     });
 
     it('writes extmap with direction when direction is not sendrecv', () => {
@@ -605,8 +609,8 @@ describe('extmap', () => {
 
 describe('ice candidate', () => {
   describe('parsing', () => {
-    const candidateString = 'candidate:702786350 2 udp 41819902 8.8.8.8 60769 ' +
-        'typ relay raddr 8.8.8.8 rport 1234 ' +
+    const candidateString = 'candidate:702786350 2 udp 41819902 8.8.8.8 ' +
+        '60769 typ relay raddr 8.8.8.8 rport 1234 ' +
         'tcptype active ' +
         'ufrag abc ' +
         'generation 0';
@@ -679,7 +683,7 @@ describe('ice candidate', () => {
         priority: 4189902,
         ip: '8.8.8.8',
         port: 60769,
-        type: 'host',
+        type: 'host'
       };
     });
 
@@ -709,7 +713,8 @@ describe('ice candidate', () => {
           '60769 typ host ufrag abc');
     });
 
-    it('does not add relatedAddress and relatedPort for host candidates', () => {
+    it('does not add relatedAddress and relatedPort for host ' +
+      'candidates', () => {
       candidate.relatedAddress = '8.8.8.8';
       candidate.relatedPort = 1234;
 
@@ -743,8 +748,8 @@ describe('writeRtpDescription', () => {
       }],
       headerExtensions: [{
         id: 2,
-        uri: 'urn:ietf:params:rtp-hdrext:toffset'
-      }],
+        uri: 'some:uri'
+      }]
     };
   });
 
@@ -788,10 +793,10 @@ describe('writeRtpDescription', () => {
     const serialized = SDPUtils.writeRtpDescription(kind, parameters);
     expect(serialized).not.to.contain('a=rtcp-fb:');
   });
- 
+
   it('generates extmap lines for headerExtensions', () => {
     const serialized = SDPUtils.writeRtpDescription(kind, parameters);
-    expect(serialized).to.contain('a=extmap:2 urn:ietf:params:rtp-hdrext:toffset\r\n');
+    expect(serialized).to.contain('a=extmap:2 some:uri\r\n');
   });
 
   it('does not generate extmap lines if headerExtensions is empty', () => {
@@ -812,7 +817,7 @@ describe('writeBoilerPlate', () => {
   beforeEach(() => {
     sdp = SDPUtils.writeSessionBoilerplate();
   });
-  
+
   it('returns a string', () => {
     expect(sdp).to.be.a('String');
   });
@@ -836,13 +841,15 @@ describe('writeBoilerPlate', () => {
 
   it('uses passed session version', () => {
     let ver = 4404;
-    let sdpWithSessionVersion = SDPUtils.writeSessionBoilerplate(undefined, ver);
+    let sdpWithSessionVersion =
+      SDPUtils.writeSessionBoilerplate(undefined, ver);
     expect(sdpWithSessionVersion).to.include(' ' + ver + ' ');
   });
 });
 
 describe('parseMLine', () => {
-  const result = SDPUtils.parseMLine('m=video 9 UDP/TLS/RTP/SAVPF 100 101 107 116 117 96 97 99 98');
+  const mLine = 'm=video 9 UDP/TLS/RTP/SAVPF 100 101 107 116 117 96 97 99 98';
+  const result = SDPUtils.parseMLine(mLine);
   it('parses the kind', () => {
     expect(result.kind).to.equal('video');
   });
@@ -850,7 +857,7 @@ describe('parseMLine', () => {
   it('parses the port as an integer', () => {
     expect(result.port).to.equal(9);
   });
-  
+
   it('parses the protocol', () => {
     expect(result.protocol).to.equal('UDP/TLS/RTP/SAVPF');
   });
@@ -868,7 +875,7 @@ describe('parseOLine', () => {
     expect(result.sessionId).to.equal('someid'));
   it('parses the session version', () =>
     expect(result.sessionVersion).to.equal(15));
-  it('parses the netType', () => 
+  it('parses the netType', () =>
     expect(result.netType).to.equal('IN'));
   it('parses the addressType', () =>
     expect(result.addressType).to.equal('IP4'));
