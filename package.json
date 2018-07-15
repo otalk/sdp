@@ -19,10 +19,10 @@
   "license": "MIT",
   "devDependencies": {
     "chai": "^4.0.0",
-    "codecov": "^2.2.0",
+    "codecov": "^3.0.4",
     "eslint": "^2.8.0",
-    "mocha": "^3.4.2",
-    "nyc": "^10.3.2",
+    "mocha": "^5.2.0",
+    "nyc": "^13.0.0",
     "sinon": "^2.3.2",
     "sinon-chai": "^2.10.0"
   }
