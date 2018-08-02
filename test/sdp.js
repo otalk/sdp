@@ -898,3 +898,16 @@ describe('parseOLine', () => {
   it('parses the address', () =>
     expect(result.address).to.equal('0.0.0.0'));
 });
+
+describe('isValidSDP', () => {
+  it('returns false for non-string input', () =>
+    expect(SDPUtils.isValidSDP(1)).to.equal(false));
+  it('returns false for the empty string', () =>
+    expect(SDPUtils.isValidSDP('')).to.equal(false));
+  it('returns false if there are empty lines', () =>
+    expect(SDPUtils.isValidSDP('v=0\r\n\r\nm=...\r\n')).to.equal(false));
+  it('returns false if the syntax is not key equals value', () =>
+    expect(SDPUtils.isValidSDP('v?0\r\n')).to.equal(false));
+  it('returns true for valid sdp', () =>
+    expect(SDPUtils.isValidSDP(videoSDP)).to.equal(true));
+});

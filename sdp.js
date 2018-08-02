@@ -687,6 +687,21 @@ SDPUtils.parseOLine = function(mediaSection) {
   };
 };
 
+// a very naive interpretation of a valid SDP.
+SDPUtils.isValidSDP = function(blob) {
+  if (typeof blob !== 'string' || blob.length === 0) {
+    return false;
+  }
+  var lines = SDPUtils.splitLines(blob);
+  for (var i = 0; i < lines.length; i++) {
+    if (lines[i].length < 2 || lines[i].charAt(1) !== '=') {
+      return false;
+    }
+    // TODO: check the modifier a bit more.
+  }
+  return true;
+};
+
 // Expose public methods.
 if (typeof module === 'object') {
   module.exports = SDPUtils;
