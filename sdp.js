@@ -65,6 +65,7 @@ SDPUtils.parseCandidate = function(line) {
     protocol: parts[2].toLowerCase(),
     priority: parseInt(parts[3], 10),
     ip: parts[4],
+    address: parts[4], // address is an alias for ip.
     port: parseInt(parts[5], 10),
     // skip parts[6] == 'typ'
     type: parts[7]
@@ -100,7 +101,7 @@ SDPUtils.writeCandidate = function(candidate) {
   sdp.push(candidate.component);
   sdp.push(candidate.protocol.toUpperCase());
   sdp.push(candidate.priority);
-  sdp.push(candidate.ip);
+  sdp.push(candidate.address || candidate.ip);
   sdp.push(candidate.port);
 
   var type = candidate.type;
