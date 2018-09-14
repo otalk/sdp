@@ -646,6 +646,10 @@ describe('ice candidate', () => {
       expect(candidate.ip).to.equal('8.8.8.8');
     });
 
+    it('sets address as an alias for ip', () => {
+      expect(candidate.address).to.equal('8.8.8.8');
+    });
+
     it('parses protocol', () => {
       expect(candidate.protocol).to.equal('udp');
     });
