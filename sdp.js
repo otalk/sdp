@@ -497,6 +497,30 @@ SDPUtils.parseRtpEncodingParameters = function(mediaSection) {
   return encodingParameters;
 };
 
+// Parses the SDP media section and returns an array simulcast encodings
+SDPUtils.parseRtpEncodings = function(mediaSection) {
+  //var encodings = [];
+  var encodings = SDPUtils.matchPrefix(mediaSection, 'a=rid:')
+        .map(function(line) {
+            var parts = line.substring(6).split(' ');
+            return {rid: parts[0], direction: parts[1]};
+        });
+  return encodings;
+};
+
+// Translates encodings object into SDP attribute.
+SDPUtils.writeRtpEncodings = function(encodings) {
+  var sdp = '';
+  var rids = [];
+  var direction = encodings[0].direction;
+  encodings.forEach((encoding) => {
+    rids.push(encoding.rid);
+	   sdp += 'a=rid:' + encoding.rid + ' ' + encoding.direction + '\r\n';
+  });
+  sdp += 'a=simulcast:' + direction + ' ' + rids.join(';') + '\r\n';
+  return sdp;
+};
+
 // parses http://draft.ortc.org/#rtcrtcpparameters*
 SDPUtils.parseRtcpParameters = function(mediaSection) {
   var rtcpParameters = {};
