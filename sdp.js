@@ -500,10 +500,10 @@ SDPUtils.parseRtpEncodingParameters = function(mediaSection) {
 // Parses the SDP media section and returns an array simulcast encodings
 SDPUtils.parseRtpEncodings = function(mediaSection) {
   var encodings = SDPUtils.matchPrefix(mediaSection, 'a=rid:')
-        .map(function(line) {
-            var parts = line.substring(6).split(' ');
-            return {rid: parts[0], direction: parts[1]};
-        });
+  .map(function(line) {
+    var parts = line.substring(6).split(' ');
+    return {rid: parts[0], direction: parts[1]};
+  });
   return encodings;
 };
 
@@ -514,7 +514,7 @@ SDPUtils.writeRtpEncodings = function(encodings) {
   var direction = encodings[0].direction;
   encodings.forEach(function(encoding) {
     rids.push(encoding.rid);
-	   sdp += 'a=rid:' + encoding.rid + ' ' + encoding.direction + '\r\n';
+    sdp += 'a=rid:' + encoding.rid + ' ' + encoding.direction + '\r\n';
   });
   sdp += 'a=simulcast:' + direction + ' ' + rids.join(';') + '\r\n';
   return sdp;
