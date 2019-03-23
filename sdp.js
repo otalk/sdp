@@ -499,7 +499,6 @@ SDPUtils.parseRtpEncodingParameters = function(mediaSection) {
 
 // Parses the SDP media section and returns an array simulcast encodings
 SDPUtils.parseRtpEncodings = function(mediaSection) {
-  //var encodings = [];
   var encodings = SDPUtils.matchPrefix(mediaSection, 'a=rid:')
         .map(function(line) {
             var parts = line.substring(6).split(' ');
