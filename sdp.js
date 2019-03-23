@@ -513,7 +513,7 @@ SDPUtils.writeRtpEncodings = function(encodings) {
   var sdp = '';
   var rids = [];
   var direction = encodings[0].direction;
-  encodings.forEach((encoding) => {
+  encodings.forEach(function(encoding) {
     rids.push(encoding.rid);
 	   sdp += 'a=rid:' + encoding.rid + ' ' + encoding.direction + '\r\n';
   });
