@@ -229,7 +229,7 @@ describe('rtpmap', () => {
 
     it('parses numChannels and defaults to 1 if not present', () => {
       expect(SDPUtils.parseRtpMap('a=rtpmap:0 PCMU/8000').numChannels)
-          .to.equal(1);
+        .to.equal(1);
     });
   });
 
@@ -302,8 +302,8 @@ describe('parseRtpEncodingParameters', () => {
   describe('bandwidth modifier', () => {
     it('of type AS is parsed', () => {
       sections = SDPUtils.splitSections(
-          videoSDP.replace('c=IN IP4 0.0.0.0\r\n',
-                           'c=IN IP4 0.0.0.0\r\nb=AS:512\r\n')
+        videoSDP.replace('c=IN IP4 0.0.0.0\r\n',
+          'c=IN IP4 0.0.0.0\r\nb=AS:512\r\n')
       );
       data = SDPUtils.parseRtpEncodingParameters(sections[1]);
 
@@ -313,8 +313,8 @@ describe('parseRtpEncodingParameters', () => {
 
     it('of type TIAS is parsed', () => {
       sections = SDPUtils.splitSections(
-          videoSDP.replace('c=IN IP4 0.0.0.0\r\n',
-                           'c=IN IP4 0.0.0.0\r\nb=TIAS:512000\r\n')
+        videoSDP.replace('c=IN IP4 0.0.0.0\r\n',
+          'c=IN IP4 0.0.0.0\r\nb=TIAS:512000\r\n')
       );
       data = SDPUtils.parseRtpEncodingParameters(sections[1]);
       expect(data[0].maxBitrate).to.equal(512000);
@@ -322,8 +322,8 @@ describe('parseRtpEncodingParameters', () => {
 
     it('of unknown type is ignored', () => {
       sections = SDPUtils.splitSections(
-          videoSDP.replace('c=IN IP4 0.0.0.0\r\n',
-                           'c=IN IP4 0.0.0.0\r\nb=something:1\r\n')
+        videoSDP.replace('c=IN IP4 0.0.0.0\r\n',
+          'c=IN IP4 0.0.0.0\r\nb=something:1\r\n')
       );
       data = SDPUtils.parseRtpEncodingParameters(sections[1]);
       expect(data[0].maxBitrate).to.equal(undefined);
@@ -508,8 +508,8 @@ describe('getDtlsParameters', () => {
 describe('writeDtlsParameters', () => {
   const type = 'actpass';
   const parameters = {fingerprints: [
-     {algorithm: 'sha-256', value: 'so:me:th:in:g1'},
-     {algorithm: 'SHA-1', value: 'somethingelse'}
+    {algorithm: 'sha-256', value: 'so:me:th:in:g1'},
+    {algorithm: 'SHA-1', value: 'somethingelse'}
   ]};
 
   const serialized = SDPUtils.writeDtlsParameters(parameters, type);
@@ -601,7 +601,7 @@ describe('extmap', () => {
   describe('writeExtmap', () => {
     it('writes extmap without direction', () => {
       expect(SDPUtils.writeExtmap({id: 1, uri: 'uri'}))
-          .to.equal('a=extmap:1 uri\r\n');
+        .to.equal('a=extmap:1 uri\r\n');
     });
 
     it('writes extmap without direction when direction is ' +
@@ -613,12 +613,12 @@ describe('extmap', () => {
 
     it('writes extmap with direction when direction is not sendrecv', () => {
       expect(SDPUtils.writeExtmap({id: 1, uri: 'uri', direction: 'sendonly'}))
-          .to.equal('a=extmap:1/sendonly uri\r\n');
+        .to.equal('a=extmap:1/sendonly uri\r\n');
     });
 
     it('writes extmap with preferredId when id is not present', () => {
       expect(SDPUtils.writeExtmap({preferredId: 1, uri: 'uri'}))
-          .to.equal('a=extmap:1 uri\r\n');
+        .to.equal('a=extmap:1 uri\r\n');
     });
   });
 });
@@ -688,7 +688,7 @@ describe('ice candidate', () => {
 
     it('parses the candidate with the legacy a= prefix', () => {
       expect(SDPUtils.parseCandidate('a=' + candidateString).foundation)
-          .to.equal('702786350');
+        .to.equal('702786350');
     });
   });
 
