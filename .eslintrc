@@ -57,6 +57,5 @@
     "require": true,
     "process": true,
     "Promise": true,
-    "Map": true"
   }
 }
