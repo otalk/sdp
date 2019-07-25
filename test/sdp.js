@@ -904,6 +904,38 @@ describe('writeSctpDescription', () => {
   });
 });
 
+describe('writeSctpDescription (old format answer)', () => {
+  let parameters;
+  let media = {
+    kind: 'application',
+    protocol: 'DTLS/SCTP'
+  };
+  beforeEach(() => {
+    parameters = {
+      protocol: 'webrtc-datachannel',
+      port: 5000,
+      maxMessageSize: 1024
+    };
+  });
+
+  it('generates correct m line', () => {
+    const serialized = SDPUtils.writeSctpDescription(media, parameters);
+    expect(serialized).to.contain(
+      'm=application 9 DTLS/SCTP 5000'
+    );
+  });
+
+  it('generates sctpmap lines', () => {
+    const serialized = SDPUtils.writeSctpDescription(media, parameters);
+    expect(serialized).to.contain('a=sctpmap:5000 webrtc-datachannel 65535');
+  });
+
+  it('generates max-message-size lines', () => {
+    const serialized = SDPUtils.writeSctpDescription(media, parameters);
+    expect(serialized).to.contain('a=max-message-size:1024');
+  });
+});
+
 describe('writeBoilerPlate', () => {
   let sdp;
   beforeEach(() => {

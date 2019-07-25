@@ -587,13 +587,24 @@ SDPUtils.parseSctpDescription = function(mediaSection) {
 
 // SCTP
 // outputs the draft-ietf-mmusic-sctp-sdp-26 version that all browsers
-// support by now receiving in this format
+// support by now receiving in this format, unless we originally parsed
+// as the draft-ietf-mmusic-sctp-sdp-05 format (indicated by the m-line
+// protocol of DTLS/SCTP -- without UDP/ or TCP/)
 SDPUtils.writeSctpDescription = function(media, sctp) {
-  var output = [
-    'm=' + media.kind + ' 9 ' + media.protocol + ' ' + sctp.protocol + '\r\n',
-    'c=IN IP4 0.0.0.0\r\n',
-    'a=sctp-port:' + sctp.port + '\r\n'
-  ];
+  var output = [];
+  if (media.protocol !== 'DTLS/SCTP') {
+    output = [
+      'm=' + media.kind + ' 9 ' + media.protocol + ' ' + sctp.protocol + '\r\n',
+      'c=IN IP4 0.0.0.0\r\n',
+      'a=sctp-port:' + sctp.port + '\r\n'
+    ];
+  } else {
+    output = [
+      'm=' + media.kind + ' 9 ' + media.protocol + ' ' + sctp.port + '\r\n',
+      'c=IN IP4 0.0.0.0\r\n',
+      'a=sctpmap:' + sctp.port + ' ' + sctp.protocol + ' 65535\r\n'
+    ];
+  }
   if (sctp.maxMessageSize !== undefined) {
     output.push('a=max-message-size:' + sctp.maxMessageSize + '\r\n');
   }
