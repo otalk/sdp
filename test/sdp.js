@@ -832,6 +832,110 @@ describe('writeRtpDescription', () => {
   });
 });
 
+describe('sctp', () => {
+  const oldSDP =
+    'm=application 63743 DTLS/SCTP 5000\r\n' +
+    'a=sctpmap:5000 webrtc-datachannel 256\r\n';
+
+  const parsedOld = SDPUtils.parseSctpDescription(oldSDP);
+  describe('parsing old form', () => {
+    it('parses port', () => {
+      expect(parsedOld.port).to.equal(5000);
+    });
+
+    it('parses protocol', () => {
+      expect(parsedOld.protocol).to.equal('webrtc-datachannel');
+    });
+
+    it('default max message size', () => {
+      expect(parsedOld.maxMessageSize).to.equal(65536);
+    });
+  });
+
+  const newSDP =
+    'm=application 54111 UDP/DTLS/SCTP webrtc-datachannel\r\n' +
+    'a=sctp-port:5000\r\n' +
+    'a=max-message-size:1024\r\n';
+  const parsedNew = SDPUtils.parseSctpDescription(newSDP);
+  describe('parsing new form', () => {
+    it('parses port', () => {
+      expect(parsedNew.port).to.equal(5000);
+    });
+
+    it('parsed protocol from m-line', () => {
+      expect(parsedNew.protocol).to.equal('webrtc-datachannel');
+    });
+
+    it('parsed max message size', () => {
+      expect(parsedNew.maxMessageSize).to.equal(1024);
+    });
+  });
+});
+
+describe('writeSctpDescription', () => {
+  let parameters;
+  let media = {
+    kind: 'application',
+    protocol: 'UDP/DTLS/SCTP'
+  };
+  beforeEach(() => {
+    parameters = {
+      protocol: 'webrtc-datachannel',
+      port: 5000,
+      maxMessageSize: 1024
+    };
+  });
+
+  it('generates correct m line', () => {
+    const serialized = SDPUtils.writeSctpDescription(media, parameters);
+    expect(serialized).to.contain(
+      'm=application 9 UDP/DTLS/SCTP webrtc-datachannel'
+    );
+  });
+
+  it('generates sctp-port lines', () => {
+    const serialized = SDPUtils.writeSctpDescription(media, parameters);
+    expect(serialized).to.contain('a=sctp-port:5000');
+  });
+
+  it('generates max-message-size lines', () => {
+    const serialized = SDPUtils.writeSctpDescription(media, parameters);
+    expect(serialized).to.contain('a=max-message-size:1024');
+  });
+});
+
+describe('writeSctpDescription (old format answer)', () => {
+  let parameters;
+  let media = {
+    kind: 'application',
+    protocol: 'DTLS/SCTP'
+  };
+  beforeEach(() => {
+    parameters = {
+      protocol: 'webrtc-datachannel',
+      port: 5000,
+      maxMessageSize: 1024
+    };
+  });
+
+  it('generates correct m line', () => {
+    const serialized = SDPUtils.writeSctpDescription(media, parameters);
+    expect(serialized).to.contain(
+      'm=application 9 DTLS/SCTP 5000'
+    );
+  });
+
+  it('generates sctpmap lines', () => {
+    const serialized = SDPUtils.writeSctpDescription(media, parameters);
+    expect(serialized).to.contain('a=sctpmap:5000 webrtc-datachannel 65535');
+  });
+
+  it('generates max-message-size lines', () => {
+    const serialized = SDPUtils.writeSctpDescription(media, parameters);
+    expect(serialized).to.contain('a=max-message-size:1024');
+  });
+});
+
 describe('writeBoilerPlate', () => {
   let sdp;
   beforeEach(() => {
