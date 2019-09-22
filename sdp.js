@@ -412,6 +412,7 @@ SDPUtils.writeRtpDescription = function(kind, caps) {
     sdp += 'a=maxptime:' + maxptime + '\r\n';
   }
   sdp += 'a=rtcp-mux\r\n';
+  sdp += 'a=rtcp-rsize\r\n';
 
   if (caps.headerExtensions) {
     caps.headerExtensions.forEach(function(extension) {
