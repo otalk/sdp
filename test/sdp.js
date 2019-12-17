@@ -1019,3 +1019,53 @@ describe('isValidSDP', () => {
   it('returns true for valid sdp', () =>
     expect(SDPUtils.isValidSDP(videoSDP)).to.equal(true));
 });
+
+describe('crypto', () => {
+  describe('parseCryptoLine', () => {
+    const result = SDPUtils.parseCryptoLine('a=crypto:0 ' +
+      'AES_CM_128_HMAC_SHA1_80 ' +
+      'inline:gd0dcDM6tVrk2sqLuNYp9EFX0WYMNu7kQw/V0s23');
+    it('parses the tag', () => {
+      expect(result.tag).to.equal(0);
+    });
+    it('parses the cryptoSuite', () => {
+      expect(result.cryptoSuite).to.equal('AES_CM_128_HMAC_SHA1_80');
+    });
+    it('parses the keyParams', () => {
+      expect(result.keyParams).to.
+        equal('inline:gd0dcDM6tVrk2sqLuNYp9EFX0WYMNu7kQw/V0s23');
+    });
+    it('parses the sessionParams', () => {
+      expect(result.sessionParams).to.equal(undefined);
+      expect(result).to.have.ownProperty('sessionParams');
+    });
+  });
+
+  describe('writeCryptoLine', () => {
+    it('generates the expected output', () => {
+      const out = SDPUtils.writeCryptoLine({
+        tag: 1,
+        cryptoSuite: 'something',
+        keyParams: 'params',
+        sessionParams: undefined,
+      });
+      expect(out).to.equal('a=crypto:1 something params\r\n');
+    });
+  });
+
+  describe('getCryptoParameters', () => {
+    const result = SDPUtils.getCryptoParameters(
+      'a=crypto:0 suite1 params1\r\n' +
+      'a=crypto:1 suite2 params2\r\n'
+    );
+    it('returns an array', () => {
+      expect(result).to.be.an('Array');
+    });
+    it('matches the number of input lines', () => {
+      expect(result).to.have.length(2);
+    });
+    it('returns two SDESParameters entries with numeric tags', () => {
+      expect(result.map(r => r.tag)).to.deep.equal([0, 1]);
+    });
+  });
+});
