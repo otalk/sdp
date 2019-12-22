@@ -327,9 +327,36 @@ SDPUtils.parseCryptoLine = function(line) {
 SDPUtils.writeCryptoLine = function(parameters) {
   return 'a=crypto:' + parameters.tag + ' ' +
     parameters.cryptoSuite + ' ' +
-    parameters.keyParams +
-    (parameters.sessionParams ? ' ' + parameters.sessionParams : '') +
+    (typeof parameters.keyParams === 'object'
+      ? SDPUtils.writeCryptoKeyParams(parameters.keyParams)
+      : parameters.keyParams) +
+    (parameters.sessionParams ? ' ' + parameters.sessionParams.join(' ') : '') +
     '\r\n';
+};
+
+// Parses the crypto key parameters into
+//   https://rawgit.com/aboba/edgertc/master/msortc-rs4.html#rtcsrtpkeyparam*
+SDPUtils.parseCryptoKeyParams = function(keyParams) {
+  if (keyParams.indexOf('inline:') !== 0) {
+    return null;
+  }
+  var parts = keyParams.substr(7).split('|');
+  return {
+    keyMethod: 'inline',
+    keySalt: parts[0],
+    lifeTime: parts[1],
+    mkiValue: parts[2] ? parts[2].split(':')[0] : undefined,
+    mkiLength: parts[2] ? parts[2].split(':')[1] : undefined,
+  };
+};
+
+SDPUtils.writeCryptoKeyParams = function(keyParams) {
+  return keyParams.keyMethod + ':'
+    + keyParams.keySalt +
+    (keyParams.lifeTime ? '|' + keyParams.lifeTime : '') +
+    (keyParams.mkiValue && keyParams.mkiLength
+      ? '|' + keyParams.mkiValue + ':' + keyParams.mkiLength
+      : '');
 };
 
 // Extracts all SDES paramters.

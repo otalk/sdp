@@ -1021,6 +1021,63 @@ describe('isValidSDP', () => {
 });
 
 describe('crypto', () => {
+  describe('parseCryptoKeyParams', () => {
+    const result = SDPUtils.parseCryptoKeyParams(
+      'inline:d0RmdmcmVCspeEc3QGZiNWpVLFJhQX1cfHAwJSoj|2^20|1:4');
+    it('returns null if the key method is not `inline`', () => {
+      expect(SDPUtils.parseCryptoKeyParams('foo')).to.equal(null);
+    });
+    it('keyMethod', () => {
+      expect(result.keyMethod).to.equal('inline');
+    });
+    it('keySalt', () => {
+      expect(result.keySalt).to.equal(
+        'd0RmdmcmVCspeEc3QGZiNWpVLFJhQX1cfHAwJSoj');
+    });
+    it('lifeTime', () => {
+      expect(result.lifeTime).to.equal('2^20');
+    });
+    it('mkiValue', () => {
+      expect(result.mkiValue).to.equal('1');
+    });
+    it('mkiLength', () => {
+      expect(result.mkiLength).to.equal('4');
+    });
+  });
+
+  describe('writeCryptoKeyParams', () => {
+    it('serializes keyMethod and keySalt', () => {
+      expect(SDPUtils.writeCryptoKeyParams({
+        keyMethod: 'inline',
+        keySalt: 'ks',
+      })).to.equal('inline:ks');
+    });
+    it('serializes lifeTime if present', () => {
+      expect(SDPUtils.writeCryptoKeyParams({
+        keyMethod: 'inline',
+        keySalt: 'ks',
+        lifeTime: '2^24',
+      })).to.equal('inline:ks|2^24');
+    });
+    it('serializes mkiValue and mkiLength if present', () => {
+      expect(SDPUtils.writeCryptoKeyParams({
+        keyMethod: 'inline',
+        keySalt: 'ks',
+        lifeTime: '2^24',
+        mkiValue: '1',
+        mkiLength: '4',
+      })).to.equal('inline:ks|2^24|1:4');
+    });
+    it('serializes mkiValue and mkiLength if lifeTime is not present', () => {
+      expect(SDPUtils.writeCryptoKeyParams({
+        keyMethod: 'inline',
+        keySalt: 'ks',
+        mkiValue: '1',
+        mkiLength: '4',
+      })).to.equal('inline:ks|1:4');
+    });
+  });
+
   describe('parseCryptoLine', () => {
     const result = SDPUtils.parseCryptoLine('a=crypto:0 ' +
       'AES_CM_128_HMAC_SHA1_80 ' +
@@ -1057,6 +1114,28 @@ describe('crypto', () => {
         sessionParams: undefined,
       });
       expect(out).to.equal('a=crypto:1 something params\r\n');
+    });
+
+    it('serializes keyParams', () => {
+      const out = SDPUtils.writeCryptoLine({
+        tag: 1,
+        cryptoSuite: 'something',
+        keyParams: {
+          keyMethod: 'inline',
+          keySalt: 'ks',
+        },
+      });
+      expect(out).to.equal('a=crypto:1 something inline:ks\r\n');
+    });
+
+    it('serializes sessionParams', () => {
+      const out = SDPUtils.writeCryptoLine({
+        tag: 1,
+        cryptoSuite: 'something',
+        keyParams: 'params',
+        sessionParams: ['foo', 'bar'],
+      });
+      expect(out).to.equal('a=crypto:1 something params foo bar\r\n');
     });
   });
 
