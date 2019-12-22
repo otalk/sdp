@@ -1031,13 +1031,20 @@ describe('crypto', () => {
     it('parses the cryptoSuite', () => {
       expect(result.cryptoSuite).to.equal('AES_CM_128_HMAC_SHA1_80');
     });
-    it('parses the keyParams', () => {
-      expect(result.keyParams).to.
-        equal('inline:gd0dcDM6tVrk2sqLuNYp9EFX0WYMNu7kQw/V0s23');
+    it('parses the keyParams as string', () => {
+      expect(result.keyParams).to.equal(
+        'inline:gd0dcDM6tVrk2sqLuNYp9EFX0WYMNu7kQw/V0s23');
     });
-    it('parses the sessionParams', () => {
-      expect(result.sessionParams).to.equal(undefined);
-      expect(result).to.have.ownProperty('sessionParams');
+    describe('parses sessionParams', () => {
+      it('as empty array when there are no sessionParams', () => {
+        expect(result.sessionParams).to.be.an('array');
+        expect(result.sessionParams).to.have.length(0);
+      });
+      it('as array', () => {
+        expect(SDPUtils.parseCryptoLine('a=crypto:0 ' +
+          'cryptoSuite keyParams foo bar').sessionParams)
+          .to.deep.equal(['foo', 'bar']);
+      });
     });
   });
 
