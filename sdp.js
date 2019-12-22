@@ -320,7 +320,7 @@ SDPUtils.parseCryptoLine = function(line) {
     tag: parseInt(parts[0], 10),
     cryptoSuite: parts[1],
     keyParams: parts[2],
-    sessionParams: parts[3],
+    sessionParams: parts.slice(3),
   };
 };
 
