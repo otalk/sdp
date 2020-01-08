@@ -529,6 +529,12 @@ describe('getIceParameters', () => {
     expect(ice).to.be.an('Object');
   });
 
+  it('returns null when there are no ice-ufrag and ice-pwd', () => {
+    expect(SDPUtils.getIceParameters('a=ice-ufrag:123', '')).to.equal(null);
+    expect(SDPUtils.getIceParameters('a=ice-pwd:123', '')).to.equal(null);
+    expect(SDPUtils.getIceParameters('', '')).to.equal(null);
+  });
+
   it('parses the ufrag', () => {
     expect(ice.usernameFragment).to.equal('npaLWmWDg3Yp6vJt');
   });

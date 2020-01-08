@@ -370,18 +370,17 @@ SDPUtils.getCryptoParameters = function(mediaSection, sessionpart) {
 // FIXME: for consistency with other functions this should only
 //   get the ice-ufrag and ice-pwd lines as input.
 SDPUtils.getIceParameters = function(mediaSection, sessionpart) {
-  var lines = SDPUtils.splitLines(mediaSection);
-  // Search in session part, too.
-  lines = lines.concat(SDPUtils.splitLines(sessionpart));
-  var iceParameters = {
-    usernameFragment: lines.filter(function(line) {
-      return line.indexOf('a=ice-ufrag:') === 0;
-    })[0].substr(12),
-    password: lines.filter(function(line) {
-      return line.indexOf('a=ice-pwd:') === 0;
-    })[0].substr(10)
+  var ufrag = SDPUtils.matchPrefix(mediaSection + sessionpart,
+    'a=ice-ufrag:')[0];
+  var pwd = SDPUtils.matchPrefix(mediaSection + sessionpart,
+    'a=ice-pwd:')[0];
+  if (!(ufrag && pwd)) {
+    return null;
+  }
+  return {
+    usernameFragment: ufrag.substr(12),
+    password: pwd.substr(10),
   };
-  return iceParameters;
 };
 
 // Serializes ICE parameters to SDP.
