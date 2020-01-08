@@ -1,6 +1,6 @@
 {
   "name": "sdp",
-  "version": "2.11.2",
+  "version": "2.12.0",
   "description": "SDP parsing and serialization utilities",
   "main": "sdp.js",
   "repository": {
