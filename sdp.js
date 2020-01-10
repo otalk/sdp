@@ -98,7 +98,15 @@ SDPUtils.parseCandidate = function(line) {
 SDPUtils.writeCandidate = function(candidate) {
   var sdp = [];
   sdp.push(candidate.foundation);
-  sdp.push(candidate.component);
+
+  var component = candidate.component;
+  if (component === 'rtp') {
+    sdp.push(1);
+  } else if (component === 'rtcp') {
+    sdp.push(2);
+  } else {
+    sdp.push(component);
+  }
   sdp.push(candidate.protocol.toUpperCase());
   sdp.push(candidate.priority);
   sdp.push(candidate.address || candidate.ip);
