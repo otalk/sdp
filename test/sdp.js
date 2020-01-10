@@ -755,6 +755,19 @@ describe('ice candidate', () => {
       expect(serialized).to.equal('candidate:702786350 2 UDP 4189902 8.8.8.8 ' +
           '60769 typ host');
     });
+
+    it('translates component rtp to 1', () => {
+      candidate.component = 'rtp';
+      serialized = SDPUtils.writeCandidate(candidate).trim();
+      expect(serialized).to.equal('candidate:702786350 1 UDP 4189902 8.8.8.8 ' +
+          '60769 typ host');
+    });
+    it('translates component rtcp to 2', () => {
+      candidate.component = 'rtcp';
+      serialized = SDPUtils.writeCandidate(candidate).trim();
+      expect(serialized).to.equal('candidate:702786350 2 UDP 4189902 8.8.8.8 ' +
+          '60769 typ host');
+    });
   });
 });
 
