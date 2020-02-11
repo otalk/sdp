@@ -83,7 +83,7 @@ SDPUtils.parseCandidate = function(line) {
         candidate.tcpType = parts[i + 1];
         break;
       case 'ufrag':
-        candidate.ufrag = parts[i + 1]; // for backward compability.
+        candidate.ufrag = parts[i + 1]; // for backward compatibility.
         candidate.usernameFragment = parts[i + 1];
         break;
       default: // extension handling, in particular ufrag
@@ -367,7 +367,7 @@ SDPUtils.writeCryptoKeyParams = function(keyParams) {
       : '');
 };
 
-// Extracts all SDES paramters.
+// Extracts all SDES parameters.
 SDPUtils.getCryptoParameters = function(mediaSection, sessionpart) {
   var lines = SDPUtils.matchPrefix(mediaSection + sessionpart,
     'a=crypto:');
