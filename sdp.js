@@ -563,7 +563,7 @@ SDPUtils.parseRtpEncodingParameters = function(mediaSection) {
 SDPUtils.parseRtcpParameters = function(mediaSection) {
   var rtcpParameters = {};
 
-  // Gets the first SSRC. Note tha with RTX there might be multiple
+  // Gets the first SSRC. Note that with RTX there might be multiple
   // SSRCs.
   var remoteSsrc = SDPUtils.matchPrefix(mediaSection, 'a=ssrc:')
     .map(function(line) {
