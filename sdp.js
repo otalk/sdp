@@ -636,7 +636,7 @@ SDPUtils.parseSctpDescription = function(mediaSection) {
   }
   var sctpMapLines = SDPUtils.matchPrefix(mediaSection, 'a=sctpmap:');
   if (sctpMapLines.length > 0) {
-    var parts = SDPUtils.matchPrefix(mediaSection, 'a=sctpmap:')[0]
+    var parts = sctpMapLines[0]
       .substr(10)
       .split(' ');
     return {
