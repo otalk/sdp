@@ -681,7 +681,7 @@ SDPUtils.generateSessionId = function() {
   return Math.random().toString().substr(2, 21);
 };
 
-// Write boilder plate for start of SDP
+// Write boiler plate for start of SDP
 // sessId argument is optional - if not supplied it will
 // be generated randomly
 // sessVersion is optional and defaults to 2
