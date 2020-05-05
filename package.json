@@ -2,13 +2,16 @@
   "name": "sdp",
   "version": "2.12.0",
   "description": "SDP parsing and serialization utilities",
-  "main": "sdp.js",
+  "main": "dist/sdp.js",
+  "module": "sdp.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/fippo/sdp.git"
   },
   "scripts": {
+    "build": "babel sdp.js --presets babel-preset-env --out-dir dist",
     "coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
+    "prepare": "npm run build",
     "test": "eslint sdp.js test/sdp.js && nyc --reporter html mocha test/sdp.js"
   },
   "keywords": [
@@ -18,10 +21,13 @@
   "author": "Philipp Hancke",
   "license": "MIT",
   "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.3",
+    "babel-preset-env": "^1.7.0",
     "chai": "^4.0.0",
-    "codecov": "^3.0.4",
+    "codecov": "^3.6.5",
     "eslint": "^6.0.1",
-    "mocha": "^5.2.0",
+    "mocha": "^7.1.2",
     "nyc": "^14.1.1",
     "sinon": "^2.3.2",
     "sinon-chai": "^2.10.0"
