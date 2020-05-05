@@ -642,7 +642,7 @@ describe('ice candidate', () => {
       expect(candidate.foundation).to.equal('702786350');
     });
     it('parses component', () => {
-      expect(candidate.component).to.equal(2);
+      expect(candidate.component).to.equal('rtcp');
     });
     it('parses priority', () => {
       expect(candidate.priority).to.equal(41819902, 'parses priority');
