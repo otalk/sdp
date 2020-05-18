@@ -466,7 +466,6 @@ SDPUtils.writeRtpDescription = function(kind, caps) {
   if (maxptime > 0) {
     sdp += 'a=maxptime:' + maxptime + '\r\n';
   }
-  sdp += 'a=rtcp-mux\r\n';
 
   if (caps.headerExtensions) {
     caps.headerExtensions.forEach(extension => {
@@ -573,6 +572,22 @@ SDPUtils.parseRtcpParameters = function(mediaSection) {
 
   return rtcpParameters;
 };
+
+SDPUtils.writeRtcpParameters = function(rtcpParameters) {
+  let sdp = '';
+  if (rtcpParameters.reducedSize) {
+    sdp += 'a=rtcp-rsize\r\n';
+  }
+  if (rtcpParameters.mux) {
+    sdp += 'a=rtcp-mux\r\n';
+  }
+  if (rtcpParameters.ssrc !== undefined && rtcpParameters.cname) {
+    sdp += 'a=ssrc:' + rtcpParameters.ssrc +
+      ' cname:' + rtcpParameters.cname + '\r\n';
+  }
+  return sdp;
+};
+
 
 // parses either a=msid: or a=ssrc:... msid lines and returns
 // the id of the MediaStream and MediaStreamTrack.

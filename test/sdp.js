@@ -471,6 +471,24 @@ describe('parseRtcpParameters', () => {
   });
 });
 
+describe('writeRtcpParameters', () => {
+  it('adds a rtcp-mux line if mux is true', () => {
+    const serialized = SDPUtils.writeRtcpParameters({mux: true});
+    expect(serialized).to.contain('a=rtcp-mux');
+  });
+
+  it('adds a rtcp-rsize line if reducedSize is true', () => {
+    const serialized = SDPUtils.writeRtcpParameters({reducedSize: true});
+    expect(serialized).to.contain('a=rtcp-rsize');
+  });
+
+  it('adds a a=ssrc line with cname if cname and ssrc are set', () => {
+    const serialized = SDPUtils.writeRtcpParameters({ssrc: 1, cname: 'foo'});
+    expect(serialized).to.contain('a=ssrc:1 cname:foo');
+  });
+});
+
+
 describe('parseFingerprint', () => {
   const res = SDPUtils.parseFingerprint('a=fingerprint:ALG fp');
   it('parses and lowercaseѕ the algorithm', () => {
