@@ -471,6 +471,24 @@ describe('parseRtcpParameters', () => {
   });
 });
 
+describe('writeRtcpParameters', () => {
+  it('adds a rtcp-mux line if mux is true', () => {
+    const serialized = SDPUtils.writeRtcpParameters({mux: true});
+    expect(serialized).to.contain('a=rtcp-mux');
+  });
+
+  it('adds a rtcp-rsize line if reducedSize is true', () => {
+    const serialized = SDPUtils.writeRtcpParameters({reducedSize: true});
+    expect(serialized).to.contain('a=rtcp-rsize');
+  });
+
+  it('adds a a=ssrc line with cname if cname and ssrc are set', () => {
+    const serialized = SDPUtils.writeRtcpParameters({ssrc: 1, cname: 'foo'});
+    expect(serialized).to.contain('a=ssrc:1 cname:foo');
+  });
+});
+
+
 describe('parseFingerprint', () => {
   const res = SDPUtils.parseFingerprint('a=fingerprint:ALG fp');
   it('parses and lowercaseѕ the algorithm', () => {
@@ -544,10 +562,11 @@ describe('getIceParameters', () => {
 });
 
 describe('writeIceParameters', () => {
-  const serialized = SDPUtils.writeIceParameters({
+  const parameters = {
     usernameFragment: 'foo',
     password: 'bar'
-  });
+  };
+  const serialized = SDPUtils.writeIceParameters(parameters);
 
   it('serializes the usernameFragment', () => {
     expect(serialized).to.contain('a=ice-ufrag:foo');
@@ -555,6 +574,12 @@ describe('writeIceParameters', () => {
 
   it('serializes the password', () => {
     expect(serialized).to.contain('a=ice-pwd:bar');
+  });
+
+  it('includes ice-lite when іceLite is true', () => {
+    const lite = SDPUtils.writeIceParameters(Object.assign({}, parameters,
+      {iceLite: true}));
+    expect(lite).to.contain('a=ice-lite');
   });
 });
 
@@ -642,7 +667,7 @@ describe('ice candidate', () => {
       expect(candidate.foundation).to.equal('702786350');
     });
     it('parses component', () => {
-      expect(candidate.component).to.equal(2);
+      expect(candidate.component).to.equal('rtcp');
     });
     it('parses priority', () => {
       expect(candidate.priority).to.equal(41819902, 'parses priority');
