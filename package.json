@@ -4,6 +4,7 @@
   "description": "SDP parsing and serialization utilities",
   "main": "dist/sdp.js",
   "module": "sdp.js",
+  "typings": "sdp.d.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/fippo/sdp.git"
