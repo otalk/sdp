@@ -717,6 +717,11 @@ describe('ice candidate', () => {
       expect(candidate.generation).to.equal('0');
     });
 
+    it('does not overwrite main attributes with extension attribues', () => {
+      expect(SDPUtils.parseCandidate(candidateString + ' type newtype').type)
+        .to.equal('relay');
+    });
+
     it('parses the candidate with the legacy a= prefix', () => {
       expect(SDPUtils.parseCandidate('a=' + candidateString).foundation)
         .to.equal('702786350');
