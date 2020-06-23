@@ -81,8 +81,10 @@ SDPUtils.parseCandidate = function(line) {
         candidate.ufrag = parts[i + 1]; // for backward compatibility.
         candidate.usernameFragment = parts[i + 1];
         break;
-      default: // extension handling, in particular ufrag
-        candidate[parts[i]] = parts[i + 1];
+      default: // extension handling, in particular ufrag. Don't overwrite.
+        if (candidate[parts[i]] === undefined) {
+          candidate[parts[i]] = parts[i + 1];
+        }
         break;
     }
   }
