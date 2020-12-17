@@ -11,7 +11,7 @@
   },
   "scripts": {
     "build": "babel sdp.js --presets babel-preset-env --out-dir dist",
-    "coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
+    "coverage": "nyc report --reporter=text-lcov > coverage.lcov",
     "prepare": "npm run build",
     "test": "eslint sdp.js test/sdp.js && nyc --reporter html mocha test/sdp.js"
   },
