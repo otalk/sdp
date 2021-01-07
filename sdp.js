@@ -24,13 +24,13 @@ SDPUtils.splitSections = function(blob) {
     'm=' + part : part).trim() + '\r\n');
 };
 
-// returns the session description.
+// Returns the session description.
 SDPUtils.getDescription = function(blob) {
   const sections = SDPUtils.splitSections(blob);
   return sections && sections[0];
 };
 
-// returns the individual media sections.
+// Returns the individual media sections.
 SDPUtils.getMediaSections = function(blob) {
   const sections = SDPUtils.splitSections(blob);
   sections.shift();
@@ -45,6 +45,7 @@ SDPUtils.matchPrefix = function(blob, prefix) {
 // Parses an ICE candidate line. Sample input:
 // candidate:702786350 2 udp 41819902 8.8.8.8 60769 typ relay raddr 8.8.8.8
 // rport 55996"
+// Input can be prefixed with a=.
 SDPUtils.parseCandidate = function(line) {
   let parts;
   // Parse both variants.
@@ -92,6 +93,7 @@ SDPUtils.parseCandidate = function(line) {
 };
 
 // Translates a candidate object into SDP candidate attribute.
+// This does not include the a= prefix!
 SDPUtils.writeCandidate = function(candidate) {
   const sdp = [];
   sdp.push(candidate.foundation);
@@ -131,12 +133,13 @@ SDPUtils.writeCandidate = function(candidate) {
 };
 
 // Parses an ice-options line, returns an array of option tags.
+// Sample input:
 // a=ice-options:foo bar
 SDPUtils.parseIceOptions = function(line) {
   return line.substr(14).split(' ');
 };
 
-// Parses an rtpmap line, returns RTCRtpCoddecParameters. Sample input:
+// Parses a rtpmap line, returns RTCRtpCoddecParameters. Sample input:
 // a=rtpmap:111 opus/48000/2
 SDPUtils.parseRtpMap = function(line) {
   let parts = line.substr(9).split(' ');
@@ -154,7 +157,7 @@ SDPUtils.parseRtpMap = function(line) {
   return parsed;
 };
 
-// Generate an a=rtpmap line from RTCRtpCodecCapability or
+// Generates a rtpmap line from RTCRtpCodecCapability or
 // RTCRtpCodecParameters.
 SDPUtils.writeRtpMap = function(codec) {
   let pt = codec.payloadType;
@@ -166,7 +169,7 @@ SDPUtils.writeRtpMap = function(codec) {
       (channels !== 1 ? '/' + channels : '') + '\r\n';
 };
 
-// Parses an a=extmap line (headerextension from RFC 5285). Sample input:
+// Parses a extmap line (headerextension from RFC 5285). Sample input:
 // a=extmap:2 urn:ietf:params:rtp-hdrext:toffset
 // a=extmap:2/sendonly urn:ietf:params:rtp-hdrext:toffset
 SDPUtils.parseExtmap = function(line) {
@@ -178,7 +181,7 @@ SDPUtils.parseExtmap = function(line) {
   };
 };
 
-// Generates a=extmap line from RTCRtpHeaderExtensionParameters or
+// Generates an extmap line from RTCRtpHeaderExtensionParameters or
 // RTCRtpHeaderExtension.
 SDPUtils.writeExtmap = function(headerExtension) {
   return 'a=extmap:' + (headerExtension.id || headerExtension.preferredId) +
@@ -188,7 +191,7 @@ SDPUtils.writeExtmap = function(headerExtension) {
       ' ' + headerExtension.uri + '\r\n';
 };
 
-// Parses an ftmp line, returns dictionary. Sample input:
+// Parses a fmtp line, returns dictionary. Sample input:
 // a=fmtp:96 vbr=on;cng=on
 // Also deals with vbr=on; cng=on
 SDPUtils.parseFmtp = function(line) {
@@ -202,7 +205,7 @@ SDPUtils.parseFmtp = function(line) {
   return parsed;
 };
 
-// Generates an a=ftmp line from RTCRtpCodecCapability or RTCRtpCodecParameters.
+// Generates a fmtp line from RTCRtpCodecCapability or RTCRtpCodecParameters.
 SDPUtils.writeFmtp = function(codec) {
   let line = '';
   let pt = codec.payloadType;
@@ -223,7 +226,7 @@ SDPUtils.writeFmtp = function(codec) {
   return line;
 };
 
-// Parses an rtcp-fb line, returns RTCPRtcpFeedback object. Sample input:
+// Parses a rtcp-fb line, returns RTCPRtcpFeedback object. Sample input:
 // a=rtcp-fb:98 nack rpsi
 SDPUtils.parseRtcpFb = function(line) {
   const parts = line.substr(line.indexOf(' ') + 1).split(' ');
@@ -232,6 +235,7 @@ SDPUtils.parseRtcpFb = function(line) {
     parameter: parts.join(' '),
   };
 };
+
 // Generate a=rtcp-fb lines from RTCRtpCodecCapability or RTCRtpCodecParameters.
 SDPUtils.writeRtcpFb = function(codec) {
   let lines = '';
@@ -250,7 +254,7 @@ SDPUtils.writeRtcpFb = function(codec) {
   return lines;
 };
 
-// Parses an RFC 5576 ssrc media attribute. Sample input:
+// Parses a RFC 5576 ssrc media attribute. Sample input:
 // a=ssrc:3735928559 cname:something
 SDPUtils.parseSsrcMedia = function(line) {
   const sp = line.indexOf(' ');
@@ -267,6 +271,8 @@ SDPUtils.parseSsrcMedia = function(line) {
   return parts;
 };
 
+// Parse a ssrc-group line (see RFC 5576). Sample input:
+// a=ssrc-group:semantics 12 34
 SDPUtils.parseSsrcGroup = function(line) {
   const parts = line.substr(13).split(' ');
   return {
@@ -276,7 +282,7 @@ SDPUtils.parseSsrcGroup = function(line) {
 };
 
 // Extracts the MID (RFC 5888) from a media section.
-// returns the MID or undefined if no mid line was found.
+// Returns the MID or undefined if no mid line was found.
 SDPUtils.getMid = function(mediaSection) {
   const mid = SDPUtils.matchPrefix(mediaSection, 'a=mid:')[0];
   if (mid) {
@@ -284,11 +290,12 @@ SDPUtils.getMid = function(mediaSection) {
   }
 };
 
+// Parses a fingerprint line for DTLS-SRTP.
 SDPUtils.parseFingerprint = function(line) {
   const parts = line.substr(14).split(' ');
   return {
     algorithm: parts[0].toLowerCase(), // algorithm is case-sensitive in Edge.
-    value: parts[1],
+    value: parts[1].toUpperCase(), // the definition is upper-case in RFC 4572.
   };
 };
 
@@ -298,8 +305,7 @@ SDPUtils.parseFingerprint = function(line) {
 SDPUtils.getDtlsParameters = function(mediaSection, sessionpart) {
   const lines = SDPUtils.matchPrefix(mediaSection + sessionpart,
     'a=fingerprint:');
-  // Note: a=setup line is ignored since we use the 'auto' role.
-  // Note2: 'algorithm' is not case sensitive except in Edge.
+  // Note: a=setup line is ignored since we use the 'auto' role in Edge.
   return {
     role: 'auto',
     fingerprints: lines.map(SDPUtils.parseFingerprint),
