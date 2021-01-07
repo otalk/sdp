@@ -495,13 +495,13 @@ describe('parseFingerprint', () => {
     expect(res.algorithm).to.equal('alg');
   });
   it('parses the fingerprint value', () => {
-    expect(res.value).to.equal('fp');
+    expect(res.value).to.equal('FP');
   });
 });
 
 describe('getDtlsParameters', () => {
   const fp = 'a=fingerprint:sha-256 so:me:th:in:g1\r\n' +
-      'a=fingerprint:SHA-1 somethingelse';
+      'a=fingerprint:SHA-1 SOMETHINGELSE';
   const dtlsParameters = SDPUtils.getDtlsParameters(fp, '');
 
   it('sets the role to auto', () => {
@@ -518,8 +518,8 @@ describe('getDtlsParameters', () => {
   });
 
   it('extracts the fingerprints', () => {
-    expect(dtlsParameters.fingerprints[0].value).to.equal('so:me:th:in:g1');
-    expect(dtlsParameters.fingerprints[1].value).to.equal('somethingelse');
+    expect(dtlsParameters.fingerprints[0].value).to.equal('SO:ME:TH:IN:G1');
+    expect(dtlsParameters.fingerprints[1].value).to.equal('SOMETHINGELSE');
   });
 });
 
