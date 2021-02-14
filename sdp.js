@@ -57,7 +57,7 @@ SDPUtils.parseCandidate = function(line) {
 
   const candidate = {
     foundation: parts[0],
-    component: {1: 'rtp', 2: 'rtcp'}[parts[1]],
+    component: {1: 'rtp', 2: 'rtcp'}[parts[1]] || parts[1],
     protocol: parts[2].toLowerCase(),
     priority: parseInt(parts[3], 10),
     ip: parts[4],
