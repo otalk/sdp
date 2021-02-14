@@ -666,9 +666,11 @@ describe('ice candidate', () => {
     it('parses foundation', () => {
       expect(candidate.foundation).to.equal('702786350');
     });
+
     it('parses component', () => {
       expect(candidate.component).to.equal('rtcp');
     });
+
     it('parses priority', () => {
       expect(candidate.priority).to.equal(41819902, 'parses priority');
     });
@@ -725,6 +727,11 @@ describe('ice candidate', () => {
     it('parses the candidate with the legacy a= prefix', () => {
       expect(SDPUtils.parseCandidate('a=' + candidateString).foundation)
         .to.equal('702786350');
+    });
+
+    it('parses unknown components', () => {
+      expect(SDPUtils.parseCandidate(candidateString.replace(' 2 ', ' 3 '))
+        .component).to.equal('3');
     });
   });
 
