@@ -215,7 +215,7 @@ SDPUtils.writeFmtp = function(codec) {
   if (codec.parameters && Object.keys(codec.parameters).length) {
     const params = [];
     Object.keys(codec.parameters).forEach(param => {
-      if (codec.parameters[param]) {
+      if (codec.parameters[param] !== undefined) {
         params.push(param + '=' + codec.parameters[param]);
       } else {
         params.push(param);
