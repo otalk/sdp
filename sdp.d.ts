@@ -44,6 +44,7 @@ export interface SDPHeaderExtension {
     id: number;
     direction?: SDPDirection;
     uri: string;
+    atrributes: string | undefined;
 }
 
 export interface SDPFeedbackParameter {

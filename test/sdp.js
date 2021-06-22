@@ -633,6 +633,11 @@ describe('extmap', () => {
       expect(res.id === 2, 'parses extmap id when direction is present');
       expect(res.direction === 'sendonly', 'parses extmap direction');
     });
+
+    it('parses extension attributes', () => {
+      res = SDPUtils.parseExtmap('a=extmap:2 uri attri butes');
+      expect(res.attributes).to.equal('attri butes');
+    });
   });
 
   describe('writeExtmap', () => {
@@ -656,6 +661,11 @@ describe('extmap', () => {
     it('writes extmap with preferredId when id is not present', () => {
       expect(SDPUtils.writeExtmap({preferredId: 1, uri: 'uri'}))
         .to.equal('a=extmap:1 uri\r\n');
+    });
+
+    it('writes extmap with attributes', () => {
+      expect(SDPUtils.writeExtmap({id: 1, uri: 'uri', attributes: 'foo'}))
+        .to.equal('a=extmap:1 uri foo\r\n');
     });
   });
 });
