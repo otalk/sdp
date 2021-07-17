@@ -178,6 +178,7 @@ SDPUtils.parseExtmap = function(line) {
     id: parseInt(parts[0], 10),
     direction: parts[0].indexOf('/') > 0 ? parts[0].split('/')[1] : 'sendrecv',
     uri: parts[1],
+    attributes: parts.slice(2).join(' '),
   };
 };
 
@@ -188,7 +189,9 @@ SDPUtils.writeExtmap = function(headerExtension) {
       (headerExtension.direction && headerExtension.direction !== 'sendrecv'
         ? '/' + headerExtension.direction
         : '') +
-      ' ' + headerExtension.uri + '\r\n';
+      ' ' + headerExtension.uri +
+      (headerExtension.attributes ? ' ' + headerExtension.attributes : '') +
+      '\r\n';
 };
 
 // Parses a fmtp line, returns dictionary. Sample input:
