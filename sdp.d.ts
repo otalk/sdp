@@ -188,7 +188,7 @@ export function getIceParameters(
 export function writeIceParameters(params: SDPIceParameters): SDPLine;
 
 export function parseRtpParameters(mediaSection: SDPSection): SDPRtpCapabilities;
-export function writeRtpDescription(kind: string, caps: SDPRtpCapabilities): SDPSection;
+export function writeRtpDescription(kind: string, caps: SDPRtpCapabilities, isRejected: boolean): SDPSection;
 
 export function parseRtpEncodingParameters(mediaSection: SDPSection): SDPEncodingParameters[];
 

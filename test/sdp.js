@@ -851,6 +851,11 @@ describe('writeRtpDescription', () => {
     expect(serialized).to.contain('m=' + kind + ' 0 ');
   });
 
+  it('generates a rejected m-line if manually reject', () => {
+    const serialized = SDPUtils.writeRtpDescription(kind, parameters, true);
+    expect(serialized).to.contain('m=' + kind + ' 0 ');
+  });
+
   it('generates rtpmap lines', () => {
     const serialized = SDPUtils.writeRtpDescription(kind, parameters);
     expect(serialized).to.contain('a=rtpmap:111');

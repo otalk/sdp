@@ -449,12 +449,13 @@ SDPUtils.parseRtpParameters = function(mediaSection) {
 
 // Generates parts of the SDP media section describing the capabilities /
 // parameters.
-SDPUtils.writeRtpDescription = function(kind, caps) {
+SDPUtils.writeRtpDescription = function(kind, caps, isRejected) {
   let sdp = '';
 
   // Build the mline.
   sdp += 'm=' + kind + ' ';
-  sdp += caps.codecs.length > 0 ? '9' : '0'; // reject if no codecs.
+  // reject if no codecs.
+  sdp += (!isRejected && caps.codecs.length > 0) ? '9' : '0';
   sdp += ' UDP/TLS/RTP/SAVPF ';
   sdp += caps.codecs.map(codec => {
     if (codec.preferredPayloadType !== undefined) {
