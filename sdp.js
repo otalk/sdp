@@ -7,7 +7,7 @@ const SDPUtils = {};
 // Generate an alphanumeric identifier for cname or mids.
 // TODO: use UUIDs instead? https://gist.github.com/jed/982883
 SDPUtils.generateIdentifier = function() {
-  return Math.random().toString(36).substr(2, 10);
+  return Math.random().toString(36).substring(2, 12);
 };
 
 // The RTCP CNAME used by all peerconnections from the same JS.
@@ -136,13 +136,13 @@ SDPUtils.writeCandidate = function(candidate) {
 // Sample input:
 // a=ice-options:foo bar
 SDPUtils.parseIceOptions = function(line) {
-  return line.substr(14).split(' ');
+  return line.substring(14).split(' ');
 };
 
 // Parses a rtpmap line, returns RTCRtpCoddecParameters. Sample input:
 // a=rtpmap:111 opus/48000/2
 SDPUtils.parseRtpMap = function(line) {
-  let parts = line.substr(9).split(' ');
+  let parts = line.substring(9).split(' ');
   const parsed = {
     payloadType: parseInt(parts.shift(), 10), // was: id
   };
@@ -173,7 +173,7 @@ SDPUtils.writeRtpMap = function(codec) {
 // a=extmap:2 urn:ietf:params:rtp-hdrext:toffset
 // a=extmap:2/sendonly urn:ietf:params:rtp-hdrext:toffset
 SDPUtils.parseExtmap = function(line) {
-  const parts = line.substr(9).split(' ');
+  const parts = line.substring(9).split(' ');
   return {
     id: parseInt(parts[0], 10),
     direction: parts[0].indexOf('/') > 0 ? parts[0].split('/')[1] : 'sendrecv',
@@ -200,7 +200,7 @@ SDPUtils.writeExtmap = function(headerExtension) {
 SDPUtils.parseFmtp = function(line) {
   const parsed = {};
   let kv;
-  const parts = line.substr(line.indexOf(' ') + 1).split(';');
+  const parts = line.substring(line.indexOf(' ') + 1).split(';');
   for (let j = 0; j < parts.length; j++) {
     kv = parts[j].trim().split('=');
     parsed[kv[0].trim()] = kv[1];
@@ -232,7 +232,7 @@ SDPUtils.writeFmtp = function(codec) {
 // Parses a rtcp-fb line, returns RTCPRtcpFeedback object. Sample input:
 // a=rtcp-fb:98 nack rpsi
 SDPUtils.parseRtcpFb = function(line) {
-  const parts = line.substr(line.indexOf(' ') + 1).split(' ');
+  const parts = line.substring(line.indexOf(' ') + 1).split(' ');
   return {
     type: parts.shift(),
     parameter: parts.join(' '),
@@ -262,14 +262,14 @@ SDPUtils.writeRtcpFb = function(codec) {
 SDPUtils.parseSsrcMedia = function(line) {
   const sp = line.indexOf(' ');
   const parts = {
-    ssrc: parseInt(line.substr(7, sp - 7), 10),
+    ssrc: parseInt(line.substring(7, sp), 10),
   };
   const colon = line.indexOf(':', sp);
   if (colon > -1) {
-    parts.attribute = line.substr(sp + 1, colon - sp - 1);
-    parts.value = line.substr(colon + 1);
+    parts.attribute = line.substring(sp + 1, colon);
+    parts.value = line.substring(colon + 1);
   } else {
-    parts.attribute = line.substr(sp + 1);
+    parts.attribute = line.substring(sp + 1);
   }
   return parts;
 };
@@ -277,7 +277,7 @@ SDPUtils.parseSsrcMedia = function(line) {
 // Parse a ssrc-group line (see RFC 5576). Sample input:
 // a=ssrc-group:semantics 12 34
 SDPUtils.parseSsrcGroup = function(line) {
-  const parts = line.substr(13).split(' ');
+  const parts = line.substring(13).split(' ');
   return {
     semantics: parts.shift(),
     ssrcs: parts.map(ssrc => parseInt(ssrc, 10)),
@@ -289,13 +289,13 @@ SDPUtils.parseSsrcGroup = function(line) {
 SDPUtils.getMid = function(mediaSection) {
   const mid = SDPUtils.matchPrefix(mediaSection, 'a=mid:')[0];
   if (mid) {
-    return mid.substr(6);
+    return mid.substring(6);
   }
 };
 
 // Parses a fingerprint line for DTLS-SRTP.
 SDPUtils.parseFingerprint = function(line) {
-  const parts = line.substr(14).split(' ');
+  const parts = line.substring(14).split(' ');
   return {
     algorithm: parts[0].toLowerCase(), // algorithm is case-sensitive in Edge.
     value: parts[1].toUpperCase(), // the definition is upper-case in RFC 4572.
@@ -327,7 +327,7 @@ SDPUtils.writeDtlsParameters = function(params, setupType) {
 // Parses a=crypto lines into
 //   https://rawgit.com/aboba/edgertc/master/msortc-rs4.html#dictionary-rtcsrtpsdesparameters-members
 SDPUtils.parseCryptoLine = function(line) {
-  const parts = line.substr(9).split(' ');
+  const parts = line.substring(9).split(' ');
   return {
     tag: parseInt(parts[0], 10),
     cryptoSuite: parts[1],
@@ -352,7 +352,7 @@ SDPUtils.parseCryptoKeyParams = function(keyParams) {
   if (keyParams.indexOf('inline:') !== 0) {
     return null;
   }
-  const parts = keyParams.substr(7).split('|');
+  const parts = keyParams.substring(7).split('|');
   return {
     keyMethod: 'inline',
     keySalt: parts[0],
@@ -390,8 +390,8 @@ SDPUtils.getIceParameters = function(mediaSection, sessionpart) {
     return null;
   }
   return {
-    usernameFragment: ufrag.substr(12),
-    password: pwd.substr(10),
+    usernameFragment: ufrag.substring(12),
+    password: pwd.substring(10),
   };
 };
 
@@ -508,7 +508,7 @@ SDPUtils.parseRtpEncodingParameters = function(mediaSection) {
 
   const flows = SDPUtils.matchPrefix(mediaSection, 'a=ssrc-group:FID')
     .map(line => {
-      const parts = line.substr(17).split(' ');
+      const parts = line.substring(17).split(' ');
       return parts.map(part => parseInt(part, 10));
     });
   if (flows.length > 0 && flows[0].length > 1 && flows[0][0] === primarySsrc) {
@@ -545,10 +545,10 @@ SDPUtils.parseRtpEncodingParameters = function(mediaSection) {
   let bandwidth = SDPUtils.matchPrefix(mediaSection, 'b=');
   if (bandwidth.length) {
     if (bandwidth[0].indexOf('b=TIAS:') === 0) {
-      bandwidth = parseInt(bandwidth[0].substr(7), 10);
+      bandwidth = parseInt(bandwidth[0].substring(7), 10);
     } else if (bandwidth[0].indexOf('b=AS:') === 0) {
       // use formula from JSEP to convert b=AS to TIAS value.
-      bandwidth = parseInt(bandwidth[0].substr(5), 10) * 1000 * 0.95
+      bandwidth = parseInt(bandwidth[0].substring(5), 10) * 1000 * 0.95
           - (50 * 40 * 8);
     } else {
       bandwidth = undefined;
@@ -610,7 +610,7 @@ SDPUtils.parseMsid = function(mediaSection) {
   let parts;
   const spec = SDPUtils.matchPrefix(mediaSection, 'a=msid:');
   if (spec.length === 1) {
-    parts = spec[0].substr(7).split(' ');
+    parts = spec[0].substring(7).split(' ');
     return {stream: parts[0], track: parts[1]};
   }
   const planB = SDPUtils.matchPrefix(mediaSection, 'a=ssrc:')
@@ -630,7 +630,7 @@ SDPUtils.parseSctpDescription = function(mediaSection) {
   const maxSizeLine = SDPUtils.matchPrefix(mediaSection, 'a=max-message-size:');
   let maxMessageSize;
   if (maxSizeLine.length > 0) {
-    maxMessageSize = parseInt(maxSizeLine[0].substr(19), 10);
+    maxMessageSize = parseInt(maxSizeLine[0].substring(19), 10);
   }
   if (isNaN(maxMessageSize)) {
     maxMessageSize = 65536;
@@ -638,7 +638,7 @@ SDPUtils.parseSctpDescription = function(mediaSection) {
   const sctpPort = SDPUtils.matchPrefix(mediaSection, 'a=sctp-port:');
   if (sctpPort.length > 0) {
     return {
-      port: parseInt(sctpPort[0].substr(12), 10),
+      port: parseInt(sctpPort[0].substring(12), 10),
       protocol: mline.fmt,
       maxMessageSize,
     };
@@ -646,7 +646,7 @@ SDPUtils.parseSctpDescription = function(mediaSection) {
   const sctpMapLines = SDPUtils.matchPrefix(mediaSection, 'a=sctpmap:');
   if (sctpMapLines.length > 0) {
     const parts = sctpMapLines[0]
-      .substr(10)
+      .substring(10)
       .split(' ');
     return {
       port: parseInt(parts[0], 10),
@@ -687,7 +687,7 @@ SDPUtils.writeSctpDescription = function(media, sctp) {
 // recommends using a cryptographically random +ve 64-bit value
 // but right now this should be acceptable and within the right range
 SDPUtils.generateSessionId = function() {
-  return Math.random().toString().substr(2, 21);
+  return Math.random().toString().substr(2, 22);
 };
 
 // Write boiler plate for start of SDP
@@ -722,7 +722,7 @@ SDPUtils.getDirection = function(mediaSection, sessionpart) {
       case 'a=sendonly':
       case 'a=recvonly':
       case 'a=inactive':
-        return lines[i].substr(2);
+        return lines[i].substring(2);
       default:
         // FIXME: What should happen here?
     }
@@ -736,7 +736,7 @@ SDPUtils.getDirection = function(mediaSection, sessionpart) {
 SDPUtils.getKind = function(mediaSection) {
   const lines = SDPUtils.splitLines(mediaSection);
   const mline = lines[0].split(' ');
-  return mline[0].substr(2);
+  return mline[0].substring(2);
 };
 
 SDPUtils.isRejected = function(mediaSection) {
@@ -745,7 +745,7 @@ SDPUtils.isRejected = function(mediaSection) {
 
 SDPUtils.parseMLine = function(mediaSection) {
   const lines = SDPUtils.splitLines(mediaSection);
-  const parts = lines[0].substr(2).split(' ');
+  const parts = lines[0].substring(2).split(' ');
   return {
     kind: parts[0],
     port: parseInt(parts[1], 10),
@@ -756,7 +756,7 @@ SDPUtils.parseMLine = function(mediaSection) {
 
 SDPUtils.parseOLine = function(mediaSection) {
   const line = SDPUtils.matchPrefix(mediaSection, 'o=')[0];
-  const parts = line.substr(2).split(' ');
+  const parts = line.substring(2).split(' ');
   return {
     username: parts[0],
     sessionId: parts[1],
