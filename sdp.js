@@ -443,6 +443,19 @@ SDPUtils.parseRtpParameters = function(mediaSection) {
   SDPUtils.matchPrefix(mediaSection, 'a=extmap:').forEach(line => {
     description.headerExtensions.push(SDPUtils.parseExtmap(line));
   });
+  const wildcardRtcpFb = SDPUtils.matchPrefix(mediaSection, 'a=rtcp-fb:* ')
+    .map(SDPUtils.parseRtcpFb);
+  description.codecs.forEach(codec => {
+    wildcardRtcpFb.forEach(fb=> {
+      const duplicate = codec.rtcpFeedback.find(existingFeedback => {
+        return existingFeedback.type === fb.type &&
+          existingFeedback.parameter === fb.parameter;
+      });
+      if (!duplicate) {
+        codec.rtcpFeedback.push(fb);
+      }
+    });
+  });
   // FIXME: parse rtcp.
   return description;
 };

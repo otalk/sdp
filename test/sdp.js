@@ -123,30 +123,48 @@ describe('getMediaSections', () => {
   });
 });
 
-describe('parseRtpParameters with the video sdp example', () => {
-  const sections = SDPUtils.splitSections(videoSDP);
-  const parsed = SDPUtils.parseRtpParameters(sections[1]);
+describe('parseRtpParameters', () => {
+  describe('with the video sdp example', () => {
+    let parsed;
+    beforeEach(() => {
+      const sections = SDPUtils.splitSections(videoSDP);
+      parsed = SDPUtils.parseRtpParameters(sections[1]);
+    });
 
-  it('parses 9 codecs', () => {
-    expect(parsed.codecs.length).to.equal(9);
+    it('parses 9 codecs', () => {
+      expect(parsed.codecs.length).to.equal(9);
+    });
+
+    describe('fecMechanisms', () => {
+      it('parses 2 fecMechanisms', () => {
+        expect(parsed.fecMechanisms.length).to.equal(2);
+      });
+
+      it('parses RED as FEC mechanism', () => {
+        expect(parsed.fecMechanisms).to.contain('RED');
+      });
+
+      it('parses ULPFEC as FEC mechanism', () => {
+        expect(parsed.fecMechanisms).to.contain('ULPFEC');
+      });
+    });
+
+    it('parses 3 headerExtensions', () => {
+      expect(parsed.headerExtensions.length).to.equal(3);
+    });
   });
 
-  describe('fecMechanisms', () => {
-    it('parses 2 fecMechanisms', () => {
-      expect(parsed.fecMechanisms.length).to.equal(2);
-    });
-
-    it('parses RED as FEC mechanism', () => {
-      expect(parsed.fecMechanisms).to.contain('RED');
-    });
-
-    it('parses ULPFEC as FEC mechanism', () => {
-      expect(parsed.fecMechanisms).to.contain('ULPFEC');
-    });
-  });
-
-  it('parses 3 headerExtensions', () => {
-    expect(parsed.headerExtensions.length).to.equal(3);
+  it('applies the wildcard * rtcp-fb to all codecs', () => {
+    const sdpWithoutFeedback = SDPUtils.splitLines(videoSDP)
+      .filter(l => !l.startsWith('a=rtcp-fb:'))
+      .join('\r\n') + '\r\n';
+    const sdpWithWildcard = sdpWithoutFeedback +
+      'a=rtcp-fb:100 nack pli\r\n' +
+      'a=rtcp-fb:* nack pli\r\n';
+    const sections = SDPUtils.splitSections(sdpWithWildcard);
+    const parsed = SDPUtils.parseRtpParameters(sections[1]);
+    const withFeedback = parsed.codecs.filter(c => c.rtcpFeedback.length === 1);
+    expect(parsed.codecs).to.deep.equal(withFeedback);
   });
 });
 
