@@ -131,6 +131,10 @@ describe('parseRtpParameters', () => {
       parsed = SDPUtils.parseRtpParameters(sections[1]);
     });
 
+    it('parse the profile', () => {
+      expect(parsed.profile).to.equal('UDP/TLS/RTP/SAVPF');
+    });
+
     it('parses 9 codecs', () => {
       expect(parsed.codecs.length).to.equal(9);
     });
@@ -919,6 +923,18 @@ describe('writeRtpDescription', () => {
     delete parameters.headerExtensions;
     const serialized = SDPUtils.writeRtpDescription(kind, parameters);
     expect(serialized).not.to.contain('a=extmap:');
+  });
+
+  it('writes the default profile if none is given', () => {
+    delete parameters.profile;
+    const serialized = SDPUtils.writeRtpDescription(kind, parameters);
+    expect(serialized).to.contain('m=' + kind + ' 9 UDP/TLS/RTP/SAVPF ');
+  });
+
+  it('writes the given profile', () => {
+    parameters.profile = 'BO/GU/S';
+    const serialized = SDPUtils.writeRtpDescription(kind, parameters);
+    expect(serialized).to.contain('m=' + kind + ' 9 BO/GU/S ');
   });
 });
 
