@@ -415,6 +415,7 @@ SDPUtils.parseRtpParameters = function(mediaSection) {
   };
   const lines = SDPUtils.splitLines(mediaSection);
   const mline = lines[0].split(' ');
+  description.profile = mline[2];
   for (let i = 3; i < mline.length; i++) { // find all codecs from mline[3..]
     const pt = mline[i];
     const rtpmapline = SDPUtils.matchPrefix(
@@ -468,7 +469,7 @@ SDPUtils.writeRtpDescription = function(kind, caps) {
   // Build the mline.
   sdp += 'm=' + kind + ' ';
   sdp += caps.codecs.length > 0 ? '9' : '0'; // reject if no codecs.
-  sdp += ' UDP/TLS/RTP/SAVPF ';
+  sdp += ' ' + (caps.profile || 'UDP/TLS/RTP/SAVPF') + ' ';
   sdp += caps.codecs.map(codec => {
     if (codec.preferredPayloadType !== undefined) {
       return codec.preferredPayloadType;
