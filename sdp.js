@@ -197,6 +197,8 @@ SDPUtils.writeExtmap = function(headerExtension) {
 // Parses a fmtp line, returns dictionary. Sample input:
 // a=fmtp:96 vbr=on;cng=on
 // Also deals with vbr=on; cng=on
+// Non-key-value such as telephone-events `0-15` get parsed as
+// {`0-15`:undefined}
 SDPUtils.parseFmtp = function(line) {
   const parsed = {};
   let kv;
