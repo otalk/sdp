@@ -176,7 +176,7 @@ describe('fmtp', () => {
   const line = 'a=fmtp:111 minptime=10; useinbandfec=1';
   const parsed = SDPUtils.parseFmtp(line);
 
-  describe('parsing', () => {
+  describe('parsing a list of key-value parameters', () => {
     it('parses 2 parameters', () => {
       expect(Object.keys(parsed).length).to.equal(2);
     });
@@ -187,6 +187,12 @@ describe('fmtp', () => {
 
     it('parses useinbandfec', () => {
       expect(parsed.useinbandfec).to.equal('1');
+    });
+  });
+  describe('parsing non-key value parameters', () => {
+    it('parses as one parameter with empty string key', () => {
+      expect(SDPUtils.parseFmtp('a=fmtp:111 96/96'))
+        .to.deep.equal({'96/96': undefined});
     });
   });
 
