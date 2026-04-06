@@ -115,7 +115,7 @@ SDPUtils.writeCandidate = function(candidate) {
   sdp.push('typ');
   sdp.push(type);
   if (type !== 'host' && candidate.relatedAddress &&
-      candidate.relatedPort) {
+      candidate.relatedPort !== undefined) {
     sdp.push('raddr');
     sdp.push(candidate.relatedAddress);
     sdp.push('rport');

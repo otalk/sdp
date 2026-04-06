@@ -798,12 +798,12 @@ describe('ice candidate', () => {
       candidate.protocol = 'tcp';
       candidate.tcpType = 'active';
       candidate.type = 'relay';
-      candidate.relatedAddress = '8.8.8.8';
-      candidate.relatedPort = 1234;
+      candidate.relatedAddress = '0.0.0.0';
+      candidate.relatedPort = 0;
 
       serialized = SDPUtils.writeCandidate(candidate).trim();
       expect(serialized).to.equal('candidate:702786350 2 TCP 4189902 8.8.8.8 ' +
-          '60769 typ relay raddr 8.8.8.8 rport 1234 tcptype active');
+          '60769 typ relay raddr 0.0.0.0 rport 0 tcptype active');
     });
 
     it('adds ufrag if present', () => {
