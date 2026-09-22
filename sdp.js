@@ -497,6 +497,15 @@ SDPUtils.writeRtpDescription = function(kind, caps) {
   if (maxptime > 0) {
     sdp += 'a=maxptime:' + maxptime + '\r\n';
   }
+  let ptime = 0;
+  caps.codecs.forEach(codec => {
+    if (codec.ptime > ptime) {
+      ptime = codec.ptime;
+    }
+  });
+  if (ptime > 0) {
+    sdp += 'a=ptime:' + ptime + '\r\n';
+  }
 
   if (caps.headerExtensions) {
     caps.headerExtensions.forEach(extension => {
