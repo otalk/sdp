@@ -195,6 +195,14 @@ describe('fmtp', () => {
         .to.deep.equal({'96/96': undefined});
     });
   });
+  it('keeps "=" in parameter values', () => {
+    // From RFC 3984, section 8.2.2.
+    expect(SDPUtils.parseFmtp('a=fmtp:99 ' +
+      'sprop-parameter-sets=Z0IACpZTBYmI,aMljiA==,As0DEWlsIOp==,KyzFGleR'))
+      .to.deep.equal({
+        'sprop-parameter-sets': 'Z0IACpZTBYmI,aMljiA==,As0DEWlsIOp==,KyzFGleR',
+      });
+  });
 
   describe('serialization', () => {
     it('uses preferredPayloadType', () => {

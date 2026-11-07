@@ -201,11 +201,10 @@ SDPUtils.writeExtmap = function(headerExtension) {
 // {`0-15`:undefined}
 SDPUtils.parseFmtp = function(line) {
   const parsed = {};
-  let kv;
   const parts = line.substring(line.indexOf(' ') + 1).split(';');
   for (let j = 0; j < parts.length; j++) {
-    kv = parts[j].trim().split('=');
-    parsed[kv[0].trim()] = kv[1];
+    const [key, ...rest] = parts[j].trim().split('=');
+    parsed[key.trim()] = rest.length ? rest.join('=') : undefined;
   }
   return parsed;
 };
